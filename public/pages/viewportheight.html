@@ -1,270 +1,203 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
-  <title>Viewport Units Debugger</title>
+  <title>Device + Viewport Debugger</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <style>
-    html, body {
+    html,
+    body {
       margin: 0;
       padding: 0;
-      height: 100%;
-      width: 100%;
-      overflow: hidden;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, sans-serif;
-      -webkit-text-size-adjust: none;
-      background: white;
-    }
-
-    #color-stripes {
-      position: absolute;
-      top: 0;
-      left: 0;
-      height: 100%;
-      width: 100%;
-      z-index: 0;
-    }
-
-    .stripe {
-      width: 100%;
-      height: 10%;
-    }
-
-    .stripe:nth-child(1)  { background: #fce4ec; }
-    .stripe:nth-child(2)  { background: #f8bbd0; }
-    .stripe:nth-child(3)  { background: #f48fb1; }
-    .stripe:nth-child(4)  { background: #f06292; }
-    .stripe:nth-child(5)  { background: #ec407a; }
-    .stripe:nth-child(6)  { background: #e91e63; }
-    .stripe:nth-child(7)  { background: #d81b60; }
-    .stripe:nth-child(8)  { background: #c2185b; }
-    .stripe:nth-child(9)  { background: #ad1457; }
-    .stripe:nth-child(10) { background: #880e4f; }
-
-    #markers {
-      position: absolute;
-      top: 0;
-      left: 0;
-      height: 100%;
-      width: 100%;
-      pointer-events: none;
-      z-index: 1;
-    }
-
-    .marker {
-      position: absolute;
-      left: 0;
-      width: 100%;
-      height: 1px;
-      border-top: 1px dashed rgba(0, 0, 0, 0.2);
-    }
-
-    .marker-label {
-      position: absolute;
-      left: 6px;
-      top: -0.6em;
-      font-size: 12px;
-      color: rgba(0, 0, 0, 0.5);
-      background: #fff;
-      padding: 0 4px;
-      line-height: 1;
-    }
-
-    #content {
-      width: 100%;
       height: 100vh;
-      box-sizing: border-box;
+      /* Use dvh for mobile fullscreen */
+      font-family: system-ui, sans-serif;
+      background: #f8f9fa;
+      color: #111;
+      overflow: hidden;
+      /* Hide scrollbars */
+    }
+
+    h1 {
+      background: #007aff;
+      color: white;
+      margin: 0;
+      padding: 12px;
+      font-size: 18px;
+      text-align: center;
+    }
+
+    #debug {
+      padding: 10px 16px;
+      white-space: pre-wrap;
+      font-family: monospace;
+      font-size: 14px;
+      line-height: 1.6;
+      background: #fff;
+      max-height: 100vh;
+      overflow-y: auto;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .viewport-box {
       display: flex;
-      flex-direction: column;
       align-items: center;
       justify-content: center;
+      height: 100dvh;
+      /* Force full screen */
+      transition: height 0.2s ease;
       text-align: center;
-      padding: 1rem;
-      color: #000;
-      transition: outline 0.3s, opacity 0.2s;
+      font-size: 1.4rem;
+      font-weight: bold;
       position: relative;
-      z-index: 2;
+      background: linear-gradient(to bottom, #d0eaff, #f0f8ff);
     }
 
-    .debug-outline {
-      outline: 3px dashed red;
-    }
-
-    #unit-name {
-      font-weight: 600;
-      font-size: 1.3rem;
-    }
-
-    .pixel-info {
+    #pixel-readout {
+      margin-top: 1rem;
       font-size: 1rem;
-      margin-top: 12px;
-      color: #333;
+      color: #007aff;
     }
 
-    .controls {
-      position: fixed;
-      top: 80%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      z-index: 999;
-      background: rgba(0, 0, 0, 0.9);
-      color: white;
+    .unit-buttons {
       display: flex;
       flex-wrap: wrap;
       justify-content: center;
-      padding: 1px;
       gap: 10px;
-      border-radius: 12px;
-      max-width: 90%;
-      box-sizing: border-box;
-      backdrop-filter: blur(4px);
+      margin: 10px;
     }
 
-    .button {
-      background: #444;
+    .unit-button {
+      background: #007aff;
       color: white;
-      padding: 12px 18px;
-      border-radius: 6px;
-      font-size: 16px;
-      cursor: pointer;
       border: none;
-      min-width: 70px;
-      text-align: center;
-      transition: background 0.2s, box-shadow 0.2s;
+      padding: 8px 14px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 14px;
     }
 
-    .button:hover {
-      background: #666;
-    }
-
-    .button.selected {
-      background: #008cff;
-      box-shadow: 0 0 8px #008cff99;
-    }
-
-    @media (max-width: 400px) {
-      .button {
-        font-size: 14px;
-        padding: 10px;
-      }
+    .unit-button.active {
+      background: #004c99;
     }
   </style>
 </head>
+
 <body>
-  <div id="color-stripes">
-    <div class="stripe"></div>
-    <div class="stripe"></div>
-    <div class="stripe"></div>
-    <div class="stripe"></div>
-    <div class="stripe"></div>
-    <div class="stripe"></div>
-    <div class="stripe"></div>
-    <div class="stripe"></div>
-    <div class="stripe"></div>
-    <div class="stripe"></div>
+  <h1>📱 Device + Viewport Debugger</h1>
+  <div id="debug">Loading debug info...</div>
+
+  <div class="unit-buttons">
+    <button class="unit-button active" onclick="setUnit('vh')">vh</button>
+    <button class="unit-button" onclick="setUnit('dvh')">dvh</button>
+    <button class="unit-button" onclick="setUnit('svh')">svh</button>
+    <button class="unit-button" onclick="setUnit('lvh')">lvh</button>
+    <button class="unit-button" onclick="setUnit('sh')">sh</button>
   </div>
 
-  <div id="markers"></div>
-
-  <div id="content">
-    <div id="unit-name">
-      100vh — Legacy Viewport Height<br/>
-      <small>Doesn't adjust for dynamic UI like address bars or keyboard</small>
-    </div>
-    <div class="pixel-info" id="pixel-display">Height in px: <strong>--</strong></div>
-  </div>
-
-  <div class="controls">
-    <button class="button" id="btn-vh" onclick="showUnit('vh')">vh</button>
-    <button class="button" id="btn-dvh" onclick="showUnit('dvh')">dvh</button>
-    <button class="button" id="btn-svh" onclick="showUnit('svh')">svh</button>
-    <button class="button" id="btn-lvh" onclick="showUnit('lvh')">lvh</button>
-    <button class="button" id="btn-sh" onclick="showUnit('sh')">sh</button>
-    <button class="button" onclick="toggleOutline()">Outline</button>
+  <div class="viewport-box" id="viewport-box">
+    Current unit: <span id="unit-label">vh</span>
+    <div id="pixel-readout"></div>
   </div>
 
   <script>
-    const content = document.getElementById("content");
-    const unitName = document.getElementById("unit-name");
-    const pixelDisplay = document.getElementById("pixel-display");
+    function createBox(unit) {
+      const el = document.createElement('div');
+      el.style.height = `100${unit}`;
+      el.style.position = 'absolute';
+      el.style.top = '-1000px';
+      el.style.width = '1px';
+      document.body.appendChild(el);
+      const height = el.getBoundingClientRect().height;
+      document.body.removeChild(el);
+      return height;
+    }
 
-    const unitConfig = {
-      vh: {
-        height: "100vh",
-        text: "100vh — Legacy Viewport Height<br/><small>Doesn't adjust for dynamic UI like address bars or keyboard</small>"
-      },
-      dvh: {
-        height: "100dvh",
-        text: "100dvh — Dynamic Viewport Height<br/><small>Updates when UI changes (keyboard, address bar)</small>"
-      },
-      svh: {
-        height: "100svh",
-        text: "100svh — Small Viewport Height<br/><small>Minimum size when browser chrome is visible</small>"
-      },
-      lvh: {
-        height: "100lvh",
-        text: "100lvh — Large Viewport Height<br/><small>Maximum size when UI is hidden</small>"
-      },
-      sh: {
-        height: "100sh",
-        text: "100sh — 1% of Small Viewport Height<br/><small>Used for consistent baseline unit</small>"
-      }
-    };
+    function detectEnvironment() {
+      const ua = navigator.userAgent;
+      const isAndroid = /Android/i.test(ua);
+      const isIOS = /iPhone|iPad|iPod/i.test(ua);
+      const isMobile = isAndroid || isIOS;
+      const isWebView =
+        (isIOS && !/Safari/.test(ua)) ||
+        (isAndroid && /\bwv\b/.test(ua)) ||
+        (window.ReactNativeWebView !== undefined);
 
-    function showUnit(unit) {
-      const config = unitConfig[unit];
-      content.style.height = config.height;
-      unitName.innerHTML = config.text;
+      return {
+        platform: isAndroid ? 'Android' : isIOS ? 'iOS' : 'Desktop',
+        androidVersion: (ua.match(/Android\s([0-9\.]+)/) || [])[1] || 'N/A',
+        deviceMake: (ua.match(/\((?:Linux; Android [^;]+); ([^)]+)\)/) || [])[1] || 'Unknown',
+        isWebView,
+        userAgent: ua,
+        browserEngine:
+          /Chrome/i.test(ua) ? 'Chrome' :
+            /Safari/i.test(ua) ? 'Safari' :
+              /Firefox/i.test(ua) ? 'Firefox' :
+                'Unknown',
+      };
+    }
 
-      // Force reflow
-      void content.offsetHeight;
-      content.style.opacity = "0.99";
+    function updateDebug() {
+      const env = detectEnvironment();
+      const vh = createBox('vh');
+      const dvh = createBox('dvh');
+      const svh = createBox('svh');
+      const lvh = createBox('lvh');
+
+      const debugText = `
+🔍 Device & Environment
+- Platform: ${env.platform}
+- Android Version: ${env.androidVersion}
+- Device Make: ${env.deviceMake}
+- Browser Engine: ${env.browserEngine}
+- In WebView: ${env.isWebView}
+- User-Agent: ${env.userAgent}
+
+🖥️ Screen & Viewport
+- screen.width × height: ${screen.width} × ${screen.height}
+- devicePixelRatio: ${window.devicePixelRatio}
+- innerWidth × innerHeight: ${window.innerWidth} × ${window.innerHeight}
+- orientation: ${screen.orientation?.type || 'N/A'}
+
+📏 Viewport Units (in px)
+- 100vh  = ${vh}px
+- 100dvh = ${dvh}px
+- 100svh = ${svh}px
+- 100lvh = ${lvh}px
+
+✅ Unit Support
+- dvh works? ${Math.abs(vh - dvh) > 5}
+- svh works? ${Math.abs(vh - svh) > 5}
+- lvh works? ${Math.abs(vh - lvh) > 5}
+      `.trim();
+
+      document.getElementById('debug').textContent = debugText;
+    }
+
+    function setUnit(unit) {
+      const box = document.getElementById("viewport-box");
+      const label = document.getElementById("unit-label");
+      box.style.height = `100${unit}`;
+      label.textContent = unit;
+
+      document.querySelectorAll(".unit-button").forEach(btn => btn.classList.remove("active"));
+      document.querySelector(`.unit-button[onclick*="${unit}"]`).classList.add("active");
+
       setTimeout(() => {
-        content.style.opacity = "1";
-        updatePixelDisplay();
-      }, 30);
-
-      // Update button selection
-      document.querySelectorAll('.button').forEach(b => b.classList.remove('selected'));
-      const active = document.getElementById("btn-" + unit);
-      if (active) active.classList.add("selected");
+        const height = box.getBoundingClientRect().height;
+        document.getElementById("pixel-readout").textContent = `Height: ${height.toFixed(2)} px`;
+        updateDebug();
+      }, 100);
     }
 
-    function toggleOutline() {
-      content.classList.toggle("debug-outline");
-    }
+    window.addEventListener('load', () => {
+      updateDebug();
+      setUnit('vh');
+    });
 
-    function updatePixelDisplay() {
-      const px = content.getBoundingClientRect().height.toFixed(2);
-      pixelDisplay.innerHTML = "Height in px: <strong>" + px + "px</strong>";
-    }
-
-    function addMarkers() {
-      const markerContainer = document.getElementById("markers");
-      for (let i = 10; i <= 100; i += 10) {
-        const marker = document.createElement("div");
-        marker.className = "marker";
-        marker.style.top = i + "%";
-
-        const label = document.createElement("div");
-        label.className = "marker-label";
-        label.innerText = i + "%";
-
-        marker.appendChild(label);
-        markerContainer.appendChild(marker);
-      }
-    }
-
-    function setupResizeListener() {
-      const observer = new ResizeObserver(() => {
-        updatePixelDisplay();
-      });
-      observer.observe(content);
-    }
-
-    addMarkers();
-    setupResizeListener();
-    showUnit("vh");
+    window.addEventListener('resize', updateDebug);
   </script>
 </body>
+
 </html>
