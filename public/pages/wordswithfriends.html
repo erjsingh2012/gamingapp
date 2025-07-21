@@ -1,0 +1,312 @@
+<!DOCTYPE html> <!-- Declares the document as HTML5 -->
+<html lang="en">
+
+<head>
+  <!-- Sets viewport to enable responsive scaling on mobile -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    /* Root variable for tile size; 1vw = 1% of viewport width */
+    :root {
+      --tile-size: 7.5vw;
+      /* Responsive tile size */
+    }
+
+    /* Universal body and html style */
+    html,
+    body {
+      margin: 0;
+      /* Removes default browser margin */
+      padding: 0;
+      height: 100dvh;
+      /* Full device height, dynamic (accounts for address bars) */
+      width: 100vw;
+      background-color: #1e4d9b;
+      display: flex;
+      /* Flex layout: centers content horizontally */
+      justify-content: center;
+      align-items: start;
+      font-family: sans-serif;
+      overflow: hidden;
+      /* Prevent scrollbars */
+    }
+
+    /* Main container centered and max width for game layout */
+    .scale-wrapper {
+      width: 100%;
+      max-width: 561px;
+      /* Limits max width for larger devices */
+      height: 100dvh;
+      position: relative;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.4);
+      /* Adds depth */
+    }
+
+    /* Game content container using flexbox */
+    .game-frame {
+      height: 100%;
+      width: 100%;
+      background-color: #fff;
+      display: flex;
+      flex-direction: column;
+      /* Stacks children vertically */
+      justify-content: space-between;
+    }
+
+    /* Panel base style */
+    .panel {
+      height: 50px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 1rem;
+      box-sizing: border-box;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      text-shadow: 0 1px 1px rgba(0, 0, 0, 0.3);
+    }
+
+    /* Top UI headers */
+    .top-panel-1 {
+      background: linear-gradient(to right, #111111, #2c2c2c);
+      /* Soft black gradient */
+      font-weight: bold;
+    }
+
+    .top-panel-2 {
+      background: linear-gradient(to right, #00c6ff, #007aff);
+      /* Modern iOS blue gradient */
+    }
+
+    /* Bottom panels */
+    .bottom-panel-1 {
+      background: linear-gradient(to right, #3a8dde, #2569be);
+      /* Calm blue gradient */
+      font-style: italic;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 10px;
+    }
+
+    .bottom-panel-2 {
+      background: linear-gradient(to right, #ffe082, #f4a742);
+      /* Warm yellow/orange */
+      color: #333333;
+      font-weight: bold;
+    }
+
+    .bottom-panel-3 {
+      background: linear-gradient(to right, #4facfe, #007aff);
+      /* Blue with light sheen */
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .bottom-panel-4 {
+      background: linear-gradient(to right, #4facfe, #007aff);
+      /* Blue with light sheen */
+      color: #000;
+      display: none;
+      transition: transform 0.3s ease, margin-bottom 0.3s ease;
+    }
+
+
+    /* Main board area */
+    .game-area {
+      flex: 1;
+      /* Take all remaining space */
+      background: #ffffff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 10px 0;
+    }
+
+    /* Game board uses CSS Grid */
+    .board {
+      display: grid;
+      grid-template-columns: repeat(11, 1fr);
+      gap: 1px;
+      background: #e0e0e0;
+      /* Light neutral for contrast */
+      padding: 10px 16px;
+      width: 100%;
+      max-width: 500px;
+      aspect-ratio: 1 / 1;
+      border-radius: 14px;
+    }
+
+    /* Each tile in board */
+    .tile {
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      font-size: 0.7rem;
+      font-weight: bold;
+      color: #ffffff;
+      background: linear-gradient(to bottom, #e8f4d0, #b5f9f467); /* Soft cream */
+      /* Green gradient */
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      user-select: none;
+      text-transform: uppercase;
+      border-radius: 10px;
+      box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.2),
+        0 2px 4px rgba(0, 0, 0, 0.2);
+      transition: transform 0.1s ease;
+    }
+
+    /* Special tiles with unique colors */
+    .TW {
+      background: #f44336;
+    }
+
+    /* Triple Word */
+    .DW {
+      background: #ffc107;
+      color: #000;
+    }
+
+    /* Double Word */
+    .TL {
+      background: #2196f3;
+    }
+
+    /* Triple Letter */
+    .DL {
+      background: #9e9e9e;
+    }
+
+    /* Double Letter */
+
+    /* Debug toggle button */
+    #fix-view-btn {
+      font-size: 12px;
+      padding: 4px 10px;
+      margin-top: -50px;
+      /* Adjusts position visually */
+      background-color: #007aff;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      box-shadow: 0 2px 4px rgba(255, 255, 255, 0.2);
+      cursor: pointer;
+      z-index: 10;
+    }
+
+    /* Debug panel overlay */
+    .debug-panel {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      background: rgba(0, 0, 0, 0.85);
+      color: #00ff99;
+      font-size: 12px;
+      padding: 6px 8px;
+      font-family: monospace;
+      z-index: 999;
+      white-space: pre-line;
+      pointer-events: none;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Root container that centers the game -->
+  <div class="scale-wrapper" id="scale-wrapper">
+
+    <!-- Overlay debug info panel -->
+    <div class="debug-panel" id="debug-panel"></div>
+
+    <!-- Main game frame -->
+    <div class="game-frame">
+
+      <!-- Game title and player info -->
+      <div class="panel top-panel-1">WORDS with Friends 2</div>
+      <div class="panel top-panel-2">Player Info Panel</div>
+
+      <!-- Center game area with the tile board -->
+      <div class="game-area">
+        <div class="board" id="board"></div>
+      </div>
+
+      <!-- Panel showing last move + Fix View toggle -->
+      <div class="panel bottom-panel-1" id="bottom-panel-1">
+        <span>Practice played FRIT for 14 points</span>
+        <button id="fix-view-btn">Fix View</button>
+      </div>
+
+      <!-- Player rack -->
+      <div class="panel bottom-panel-2">[ T ][ D ][ K ][ N ][ A ][ A ][ I ]</div>
+
+      <!-- Game options -->
+      <div class="panel bottom-panel-3">More | Pass | PLAY | Swap | Shuffle</div>
+
+      <!-- Expandable debug/config panel -->
+      <div class="panel bottom-panel-4" id="bottom-panel-4"></div>
+    </div>
+  </div>
+
+  <!-- JavaScript Logic -->
+  <script>
+    const fixBtn = document.getElementById("fix-view-btn");
+    const bottomPanel4 = document.querySelector('#bottom-panel-4');
+    const board = document.getElementById("board");
+
+    // Board layout using 2D array to represent bonus tiles
+    const boardData = [
+      ['TW', '', '', 'DL', '', '', 'DL', '', '', '', 'TW'],
+      ['', 'DW', '', '', '', 'TL', '', '', '', 'DW', ''],
+      ['', '', 'DW', '', '', '', '', '', 'DW', '', ''],
+      ['DL', '', '', 'DW', '', '', '', 'DW', '', '', 'DL'],
+      ['', '', '', '', 'DW', '', 'DW', '', '', '', ''],
+      ['', 'TL', '', '', '', '★', '', '', '', 'TL', ''],
+      ['', '', '', '', 'DW', '', 'DW', '', '', '', ''],
+      ['DL', '', '', 'DW', '', '', '', 'DW', '', '', 'DL'],
+      ['', '', 'DW', '', '', '', '', '', 'DW', '', ''],
+      ['', 'DW', '', '', '', 'TL', '', '', '', 'DW', ''],
+      ['TW', '', '', 'DL', '', '', 'DL', '', '', '', 'TW']
+    ];
+
+    // Generate board tiles dynamically
+    boardData.forEach(row => {
+      row.forEach(cell => {
+        const tile = document.createElement("div");
+        tile.className = "tile " + (cell || ""); // Append bonus class if any
+        tile.textContent = cell || ''; // Display bonus name
+        board.appendChild(tile);
+      });
+    });
+
+    // Debug panel to show real-time layout info
+    function updateDebugPanel() {
+      const debugPanel = document.getElementById("debug-panel");
+      const gameFrame = document.querySelector('.game-frame');
+      const boardRect = board.getBoundingClientRect();
+      const gameRect = gameFrame.getBoundingClientRect();
+
+      debugPanel.textContent = `
+[ Debug Info Panel ]
+📱 Viewport: ${window.innerWidth} x ${window.innerHeight}
+🎮 Game Frame: ${Math.round(gameRect.width)} x ${Math.round(gameRect.height)}
+🧩 Board: ${Math.round(boardRect.width)} x ${Math.round(boardRect.height)}
+📦 Panel 4 Visible: ${bottomPanel4.style.display || 'none'}
+`.trim();
+    }
+
+    // Button to toggle debug/config panel
+    fixBtn.addEventListener("click", () => {
+      const isFixed = bottomPanel4.style.display !== "flex";
+      fixBtn.textContent = isFixed ? "Undo Fix" : "Fix View";
+      bottomPanel4.style.display = isFixed ? "flex" : "none";
+      updateDebugPanel();
+    });
+
+    // Update debug info on page load and resize
+    window.addEventListener('load', updateDebugPanel);
+    window.addEventListener('resize', updateDebugPanel);
+  </script>
+</body>
+
+</html>
