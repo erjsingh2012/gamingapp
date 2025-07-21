@@ -1,92 +1,92 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8" />
   <title>Device + Viewport Debugger</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <style>
-    html,
-    body {
+    html, body {
       margin: 0;
       padding: 0;
-      height: 100vh;
-      /* Use dvh for mobile fullscreen */
-      font-family: system-ui, sans-serif;
-      background: #f8f9fa;
-      color: #111;
+      height: 100dvh;
       overflow: hidden;
-      /* Hide scrollbars */
+      font-family: system-ui, sans-serif;
+      display: flex;
+      flex-direction: column;
+      background: #f8f9fa;
     }
 
     h1 {
       background: #007aff;
       color: white;
       margin: 0;
-      padding: 12px;
-      font-size: 18px;
+      padding: 8px;
+      font-size: 16px;
       text-align: center;
-    }
-
-    #debug {
-      padding: 10px 16px;
-      white-space: pre-wrap;
-      font-family: monospace;
-      font-size: 14px;
-      line-height: 1.6;
-      background: #fff;
-      max-height: 100vh;
-      overflow-y: auto;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    }
-
-    .viewport-box {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      height: 100dvh;
-      /* Force full screen */
-      transition: height 0.2s ease;
-      text-align: center;
-      font-size: 1.4rem;
-      font-weight: bold;
-      position: relative;
-      background: linear-gradient(to bottom, #d0eaff, #f0f8ff);
-    }
-
-    #pixel-readout {
-      margin-top: 1rem;
-      font-size: 1rem;
-      color: #007aff;
+      flex: 0 0 auto;
     }
 
     .unit-buttons {
       display: flex;
       flex-wrap: wrap;
       justify-content: center;
-      gap: 10px;
-      margin: 10px;
+      gap: 6px;
+      padding: 6px;
+      flex: 0 0 auto;
     }
 
     .unit-button {
       background: #007aff;
       color: white;
       border: none;
-      padding: 8px 14px;
-      border-radius: 5px;
+      padding: 6px 10px;
+      border-radius: 4px;
+      font-size: 13px;
       cursor: pointer;
-      font-size: 14px;
     }
 
     .unit-button.active {
       background: #004c99;
     }
+
+    .main-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .viewport-box {
+      flex: 0 0 48%;
+      background: linear-gradient(to bottom, #d0eaff, #f0f8ff);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      font-size: 1.2rem;
+      font-weight: bold;
+      text-align: center;
+    }
+
+    #pixel-readout {
+      font-size: 1rem;
+      color: #007aff;
+      margin-top: 0.4rem;
+    }
+
+    #debug {
+      flex: 1;
+      padding: 4px 8px;
+      font-family: monospace;
+      font-size: 12px;
+      white-space: pre-wrap;
+      line-height: 1.3;
+      background: #fff;
+      overflow: hidden;
+    }
   </style>
 </head>
-
 <body>
   <h1>📱 Device + Viewport Debugger</h1>
-  <div id="debug">Loading debug info...</div>
 
   <div class="unit-buttons">
     <button class="unit-button active" onclick="setUnit('vh')">vh</button>
@@ -96,9 +96,14 @@
     <button class="unit-button" onclick="setUnit('sh')">sh</button>
   </div>
 
-  <div class="viewport-box" id="viewport-box">
-    Current unit: <span id="unit-label">vh</span>
-    <div id="pixel-readout"></div>
+  <div class="main-content">
+    
+
+    <div id="debug">Loading debug info...</div>
+    <div class="viewport-box" id="viewport-box">
+      Current unit: <span id="unit-label">vh</span>
+      <div id="pixel-readout"></div>
+    </div>
   </div>
 
   <script>
@@ -118,7 +123,6 @@
       const ua = navigator.userAgent;
       const isAndroid = /Android/i.test(ua);
       const isIOS = /iPhone|iPad|iPod/i.test(ua);
-      const isMobile = isAndroid || isIOS;
       const isWebView =
         (isIOS && !/Safari/.test(ua)) ||
         (isAndroid && /\bwv\b/.test(ua)) ||
@@ -132,9 +136,8 @@
         userAgent: ua,
         browserEngine:
           /Chrome/i.test(ua) ? 'Chrome' :
-            /Safari/i.test(ua) ? 'Safari' :
-              /Firefox/i.test(ua) ? 'Firefox' :
-                'Unknown',
+          /Safari/i.test(ua) ? 'Safari' :
+          /Firefox/i.test(ua) ? 'Firefox' : 'Unknown',
       };
     }
 
@@ -146,31 +149,30 @@
       const lvh = createBox('lvh');
 
       const debugText = `
-🔍 Device & Environment
+🔍 Environment
 - Platform: ${env.platform}
 - Android Version: ${env.androidVersion}
-- Device Make: ${env.deviceMake}
-- Browser Engine: ${env.browserEngine}
-- In WebView: ${env.isWebView}
-- User-Agent: ${env.userAgent}
+- Device: ${env.deviceMake}
+- WebView: ${env.isWebView}
+- Engine: ${env.browserEngine}
 
-🖥️ Screen & Viewport
-- screen.width × height: ${screen.width} × ${screen.height}
-- devicePixelRatio: ${window.devicePixelRatio}
-- innerWidth × innerHeight: ${window.innerWidth} × ${window.innerHeight}
-- orientation: ${screen.orientation?.type || 'N/A'}
+📱 Viewport
+- Screen: ${screen.width} × ${screen.height}
+- DPR: ${window.devicePixelRatio}
+- Window: ${window.innerWidth} × ${window.innerHeight}
+- Orientation: ${screen.orientation?.type || 'N/A'}
 
-📏 Viewport Units (in px)
+📏 Units
 - 100vh  = ${vh}px
 - 100dvh = ${dvh}px
 - 100svh = ${svh}px
 - 100lvh = ${lvh}px
 
-✅ Unit Support
-- dvh works? ${Math.abs(vh - dvh) > 5}
-- svh works? ${Math.abs(vh - svh) > 5}
-- lvh works? ${Math.abs(vh - lvh) > 5}
-      `.trim();
+✅ Support
+- dvh: ${Math.abs(vh - dvh) > 5}
+- svh: ${Math.abs(vh - svh) > 5}
+- lvh: ${Math.abs(vh - lvh) > 5}
+`.trim();
 
       document.getElementById('debug').textContent = debugText;
     }
@@ -199,5 +201,4 @@
     window.addEventListener('resize', updateDebug);
   </script>
 </body>
-
 </html>
