@@ -1,13 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Scrabble 13x13</title>
   <style>
     :root {
-      --cell-size: 40px;
+      --cell-size: min(8.5vw, 40px);
     }
 
     * {
@@ -27,7 +26,8 @@
 
     h1 {
       margin: 20px 0 10px;
-      font-size: 1.8rem;
+      font-size: 1.5rem;
+      text-align: center;
       color: #333;
     }
 
@@ -35,65 +35,53 @@
       display: grid;
       grid-template-columns: repeat(13, var(--cell-size));
       grid-template-rows: repeat(13, var(--cell-size));
-      gap: 2px;
+      gap: 1px;
       background: #bbb;
-      padding: 12px;
+      padding: 8px;
       border-radius: 12px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+      overflow-x: auto;
+      max-width: 100vw;
     }
 
     .cell {
       background: #eee;
-      border-radius: 6px;
+      border-radius: 4px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 0.85em;
+      font-size: 0.75em;
       font-weight: bold;
       color: #333;
       position: relative;
-      transition: background 0.2s;
     }
 
     .cell.droppable {
       border: 2px dashed #555;
     }
 
-    .TW {
-      background: #d32f2f;
-      color: white;
-    }
-
-    .DW {
-      background: #f57c00;
-      color: white;
-    }
-
-    .TL {
-      background: #1976d2;
-      color: white;
-    }
-
-    .DL {
-      background: #7b1fa2;
-      color: white;
-    }
+    .TW { background: #d32f2f; color: white; }
+    .DW { background: #f57c00; color: white; }
+    .TL { background: #1976d2; color: white; }
+    .DL { background: #7b1fa2; color: white; }
 
     .cell::after {
       content: attr(data-bonus);
-      font-size: 0.65em;
+      font-size: 0.55em;
       position: absolute;
       bottom: 2px;
       right: 4px;
-      opacity: 0.7;
+      opacity: 0.6;
     }
 
     #rack {
       display: grid;
       grid-template-columns: repeat(7, var(--cell-size));
-      gap: 10px;
-      margin: 20px 0;
+      gap: 8px;
+      margin: 16px 0;
       justify-content: center;
+      padding: 0 10px;
+      max-width: 100vw;
     }
 
     .rack-slot {
@@ -118,7 +106,7 @@
       border: 1px solid #aaa;
       border-radius: 6px;
       font-weight: bold;
-      font-size: 1.2em;
+      font-size: 1.1em;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -134,31 +122,34 @@
 
     #controls {
       display: flex;
+      flex-wrap: wrap;
       align-items: center;
-      gap: 16px;
-      margin-bottom: 20px;
+      justify-content: center;
+      gap: 12px;
+      margin-bottom: 16px;
+      padding: 0 10px;
     }
 
     #play-btn,
     .back-link {
-      padding: 10px 18px;
+      padding: 10px 16px;
       background: #4caf50;
       color: white;
       border: none;
       border-radius: 6px;
-      font-size: 1rem;
+      font-size: 0.95rem;
       cursor: pointer;
       text-decoration: none;
-      transition: background 0.2s;
+      white-space: nowrap;
+    }
+
+    .back-link {
+      background: #607d8b;
     }
 
     #play-btn:hover,
     .back-link:hover {
       background: #388e3c;
-    }
-
-    .back-link {
-      background: #607d8b;
     }
   </style>
 </head>
@@ -182,19 +173,19 @@
     };
 
     const bonusMap = [
-      ['TW', '', '', '', 'DL', '', '', '', 'DL', '', '', '', 'TW'],
-      ['', 'DW', '', '', '', '', '', '', '', '', '', 'DW', ''],
-      ['', '', 'DW', '', '', '', 'DL', '', '', '', 'DW', '', ''],
-      ['', 'DL', '', 'DW', '', '', '', '', '', 'DW', '', 'DL', ''],
-      ['', '', '', '', 'DW', '', '', '', 'DW', '', '', '', ''],
-      ['', '', 'DL', '', '', '', 'DL', '', '', '', 'DL', '', ''],
-      ['DL', '', '', '', '', '', '★', '', '', '', '', '', 'DL'],
-      ['', '', 'DL', '', '', '', 'DL', '', '', '', 'DL', '', ''],
-      ['', '', '', '', 'DW', '', '', '', 'DW', '', '', '', ''],
-      ['', 'DL', '', 'DW', '', '', '', '', '', 'DW', '', 'DL', ''],
-      ['', '', 'DW', '', '', '', 'DL', '', '', '', 'DW', '', ''],
-      ['', 'DW', '', '', '', '', '', '', '', '', '', 'DW', ''],
-      ['TW', '', '', '', 'DL', '', '', '', 'DL', '', '', '', 'TW']
+      ['TW','','','','DL','','','','DL','','','','TW'],
+      ['','DW','','','','','','','','','','DW',''],
+      ['','','DW','','','','DL','','','','DW','',''],
+      ['','DL','','DW','','','','','','DW','','DL',''],
+      ['','','','','DW','','','','DW','','','',''],
+      ['','','DL','','','','DL','','','','DL','',''],
+      ['DL','','','','','','★','','','','','','DL'],
+      ['','','DL','','','','DL','','','','DL','',''],
+      ['','','','','DW','','','','DW','','','',''],
+      ['','DL','','DW','','','','','','DW','','DL',''],
+      ['','','DW','','','','DL','','','','DW','',''],
+      ['','DW','','','','','','','','','','DW',''],
+      ['TW','','','','DL','','','','DL','','','','TW']
     ];
 
     const board = document.getElementById('board');
@@ -215,7 +206,6 @@
       return tile;
     }
 
-    // Board generation
     for (let r = 0; r < 13; r++) {
       for (let c = 0; c < 13; c++) {
         const cell = document.createElement('div');
@@ -234,9 +224,8 @@
           const tile = document.getElementById(tileId);
           if (tile && !cell.hasChildNodes()) {
             const parent = tile.parentElement;
-            if (parent.classList.contains('rack-slot')) {
-              parent.innerHTML = '';
-            } else if (parent.classList.contains('cell')) {
+            if (parent.classList.contains('rack-slot')) parent.innerHTML = '';
+            if (parent.classList.contains('cell')) {
               parent.dataset.tile = '';
               parent.innerHTML = '';
             }
@@ -250,7 +239,6 @@
       }
     }
 
-    // Rack generation
     function generateRack() {
       rack.innerHTML = '';
       for (let i = 0; i < 7; i++) {
@@ -275,10 +263,8 @@
           slot.classList.remove('over');
         };
 
-        if (i < 7) {
-          const letter = letters[Math.floor(Math.random() * letters.length)];
-          slot.appendChild(createTile(letter));
-        }
+        const letter = letters[Math.floor(Math.random() * letters.length)];
+        slot.appendChild(createTile(letter));
         rack.appendChild(slot);
       }
     }
@@ -300,7 +286,7 @@
       const score = playedTiles.reduce((sum, t) => sum + (letterValues[t.letter] || 0), 0);
       alert(`(Basic) Word Score: ${score} points`);
 
-      generateRack();
+      generateRack(); // refill rack
     };
 
     generateRack();
