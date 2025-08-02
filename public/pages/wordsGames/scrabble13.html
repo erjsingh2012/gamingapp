@@ -258,6 +258,58 @@
     // Initialize game
     populateBoard();
     populateRack(drawTiles(7));
+
+    let draggedTile = null;
+    let dragOffsetX = 0;
+    let dragOffsetY = 0;
+
+    const initDraggableRackTiles = () => {
+      const rack = document.getElementById('rack');
+
+      // Delegate pointer events from the rack
+      rack.addEventListener('pointerdown', (e) => {
+        const target = e.target;
+        if (target.tagName !== 'SPAN') return;
+
+        // Create draggable clone
+        draggedTile = target.cloneNode(true);
+        draggedTile.style.position = 'fixed';
+        draggedTile.style.zIndex = '1000';
+        draggedTile.style.pointerEvents = 'none';
+        draggedTile.style.opacity = '0.9';
+        draggedTile.style.transform = 'scale(1.8)';
+        document.body.appendChild(draggedTile);
+
+        // Capture offset between pointer and center of tile
+        const rect = target.getBoundingClientRect();
+        dragOffsetX = e.clientX - rect.left;
+        dragOffsetY = e.clientY - rect.top;
+
+        moveDraggedTile(e);
+      });
+
+      document.addEventListener('pointermove', (e) => {
+        if (!draggedTile) return;
+        moveDraggedTile(e);
+      });
+
+      document.addEventListener('pointerup', () => {
+        if (draggedTile) {
+          draggedTile.remove();
+          draggedTile = null;
+        }
+      });
+
+      const moveDraggedTile = (e) => {
+        if (!draggedTile) return;
+        draggedTile.style.left = `${e.clientX - dragOffsetX}px`;
+        draggedTile.style.top = `${e.clientY - dragOffsetY}px`;
+      };
+    };
+
+    const rackTiles = drawTiles(7);
+    populateRack(rackTiles);
+    initDraggableRackTiles();
   </script>
 </body>
 
