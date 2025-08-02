@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -7,17 +8,22 @@
   <title>Scrabble 13x13</title>
   <style>
     :root {
-      --cell-size: min(7.0vw,36px);
+      --cell-size: min(7.0vw, 36px);
     }
 
     * {
       box-sizing: border-box;
     }
-    html, body {
+
+    html,
+    body {
       height: 100%;
-      overflow: hidden; /* disable all scrolling */
-      touch-action: none; /* prevent touch scroll */
-    } 
+      overflow: hidden;
+      /* disable all scrolling */
+      touch-action: none;
+      /* prevent touch scroll */
+    }
+
     body {
       margin: 0;
       padding: 0;
@@ -65,10 +71,25 @@
       border: 2px dashed #555;
     }
 
-    .TW { background: #d32f2f; color: white; }
-    .DW { background: #f57c00; color: white; }
-    .TL { background: #1976d2; color: white; }
-    .DL { background: #7b1fa2; color: white; }
+    .TW {
+      background: #d32f2f;
+      color: white;
+    }
+
+    .DW {
+      background: #f57c00;
+      color: white;
+    }
+
+    .TL {
+      background: #1976d2;
+      color: white;
+    }
+
+    .DL {
+      background: #7b1fa2;
+      color: white;
+    }
 
     .cell::after {
       content: attr(data-bonus);
@@ -184,19 +205,19 @@
     };
 
     const bonusMap = [
-      ['TW','','','','DL','','','','DL','','','','TW'],
-      ['','DW','','','','','','','','','','DW',''],
-      ['','','DW','','','','DL','','','','DW','',''],
-      ['','DL','','DW','','','','','','DW','','DL',''],
-      ['','','','','DW','','','','DW','','','',''],
-      ['','','DL','','','','DL','','','','DL','',''],
-      ['DL','','','','','','★','','','','','','DL'],
-      ['','','DL','','','','DL','','','','DL','',''],
-      ['','','','','DW','','','','DW','','','',''],
-      ['','DL','','DW','','','','','','DW','','DL',''],
-      ['','','DW','','','','DL','','','','DW','',''],
-      ['','DW','','','','','','','','','','DW',''],
-      ['TW','','','','DL','','','','DL','','','','TW']
+      ['TW', '', '', '', 'DL', '', '', '', 'DL', '', '', '', 'TW'],
+      ['', 'DW', '', '', '', '', '', '', '', '', '', 'DW', ''],
+      ['', '', 'DW', '', '', '', 'DL', '', '', '', 'DW', '', ''],
+      ['', 'DL', '', 'DW', '', '', '', '', '', 'DW', '', 'DL', ''],
+      ['', '', '', '', 'DW', '', '', '', 'DW', '', '', '', ''],
+      ['', '', 'DL', '', '', '', 'DL', '', '', '', 'DL', '', ''],
+      ['DL', '', '', '', '', '', '★', '', '', '', '', '', 'DL'],
+      ['', '', 'DL', '', '', '', 'DL', '', '', '', 'DL', '', ''],
+      ['', '', '', '', 'DW', '', '', '', 'DW', '', '', '', ''],
+      ['', 'DL', '', 'DW', '', '', '', '', '', 'DW', '', 'DL', ''],
+      ['', '', 'DW', '', '', '', 'DL', '', '', '', 'DW', '', ''],
+      ['', 'DW', '', '', '', '', '', '', '', '', '', 'DW', ''],
+      ['TW', '', '', '', 'DL', '', '', '', 'DL', '', '', '', 'TW']
     ];
 
     const board = document.getElementById('board');
@@ -206,16 +227,65 @@
       const tile = document.createElement('div');
       tile.className = 'tile';
       tile.textContent = letter;
-      tile.draggable = true;
       tile.dataset.letter = letter;
+      tile.style.touchAction = 'none'; // Prevent default gestures
+
       const id = 'tile-' + Math.random().toString(36).substr(2, 9);
       tile.id = id;
-      tile.ondragstart = (e) => {
-        e.dataTransfer.setData("text/plain", letter);
-        e.dataTransfer.setData("text/id", id);
-      };
+
+      let ghostTile = null;
+
+      tile.addEventListener('pointerdown', (e) => {
+        e.preventDefault();
+
+        // Create ghost tile
+        ghostTile = tile.cloneNode(true);
+        ghostTile.style.position = 'fixed';
+        ghostTile.style.pointerEvents = 'none';
+        ghostTile.style.opacity = '0.85';
+        ghostTile.style.zIndex = '1000';
+        ghostTile.style.transform = 'scale(2)';
+        ghostTile.style.transformOrigin = 'center';
+        document.body.appendChild(ghostTile);
+
+        moveGhost(e.clientX, e.clientY);
+        tile.setPointerCapture(e.pointerId);
+      });
+
+      tile.addEventListener('pointermove', (e) => {
+        if (ghostTile) {
+          moveGhost(e.clientX, e.clientY);
+        }
+      });
+
+      tile.addEventListener('pointerup', (e) => {
+        if (ghostTile) {
+          const target = document.elementFromPoint(e.clientX, e.clientY);
+          if (target && target.classList.contains('cell') && !target.hasChildNodes()) {
+            const parent = tile.parentElement;
+            if (parent.classList.contains('rack-slot')) parent.innerHTML = '';
+            else if (parent.classList.contains('cell')) {
+              parent.dataset.tile = '';
+              parent.innerHTML = '';
+            }
+
+            target.appendChild(tile);
+            target.dataset.tile = tile.dataset.letter;
+          }
+
+          ghostTile.remove();
+          ghostTile = null;
+        }
+      });
+
+      function moveGhost(x, y) {
+        ghostTile.style.left = `${x - 20}px`;
+        ghostTile.style.top = `${y - 20}px`;
+      }
+
       return tile;
     }
+
 
     for (let r = 0; r < 13; r++) {
       for (let c = 0; c < 13; c++) {
@@ -299,8 +369,9 @@
 
       generateRack(); // refill rack
     };
-    
+
     generateRack();
   </script>
 </body>
+
 </html>
