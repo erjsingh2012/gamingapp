@@ -1,343 +1,356 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Scrabble 13x13</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <style>
     :root {
-      --cell-size: min(7.0vw, 36px);
+      --tile-size: 7.5vw;
     }
 
-    * {
-      box-sizing: border-box;
-    }
-
+    html,
     body {
       margin: 0;
       padding: 0;
-      font-family: "Segoe UI", sans-serif;
-      background: #f0f2f5;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      background-color: #1e4d9b;
+      font-family: sans-serif;
       display: flex;
-      flex-direction: column;
-      align-items: center;
-      overflow-x: hidden;
-    }
-
-    h1 {
-      margin: 20px 0 10px;
-      font-size: 1.5rem;
-      text-align: center;
-      color: #333;
-    }
-
-    #board {
-      display: grid;
-      grid-template-columns: repeat(13, var(--cell-size));
-      grid-template-rows: repeat(13, var(--cell-size));
-      gap: 1px;
-      background: #bbb;
-      padding: 8px;
-      border-radius: 12px;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-    }
-
-    .cell {
-      background: #eee;
-      border-radius: 4px;
-      display: flex;
-      align-items: center;
       justify-content: center;
-      font-size: 0.75em;
-      font-weight: bold;
-      color: #333;
-      position: relative;
-    }
-
-    .TW { background: #d32f2f; color: white; }
-    .DW { background: #f57c00; color: white; }
-    .TL { background: #1976d2; color: white; }
-    .DL { background: #7b1fa2; color: white; }
-
-    .cell::after {
-      content: attr(data-bonus);
-      font-size: 0.55em;
-      position: absolute;
-      bottom: 2px;
-      right: 4px;
-      opacity: 0.6;
-    }
-
-    #rack {
-      display: grid;
-      grid-template-columns: repeat(7, var(--cell-size));
-      gap: 8px;
-      margin: 16px 0;
-      justify-content: center;
-      padding: 0 10px;
-    }
-
-    .rack-slot {
-      width: var(--cell-size);
-      height: var(--cell-size);
-      border: 2px dashed #bbb;
-      border-radius: 6px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: #f8f8f8;
-    }
-
-    .tile {
-      width: var(--cell-size);
-      height: var(--cell-size);
-      background: #fff8dc;
-      border: 1px solid #aaa;
-      border-radius: 6px;
-      font-weight: bold;
-      font-size: 1.1em;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: grab;
-      box-shadow: 1px 2px 4px rgba(0, 0, 0, 0.15);
-      user-select: none;
+      align-items: flex-start;
       touch-action: none;
     }
 
-    .tile:active {
-      cursor: grabbing;
+    .scale-wrapper {
+      width: 100%;
+      max-width: 561px;
+      height: 100vh;
+      position: relative;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.4);
     }
 
-    #controls {
+    .game-frame {
+      height: 100%;
+      width: 100%;
+      background-color: #fff;
       display: flex;
-      flex-wrap: wrap;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .panel {
+      height: 50px;
+      display: flex;
       align-items: center;
       justify-content: center;
-      gap: 12px;
-      margin-bottom: 16px;
+      color: white;
+      font-size: 1rem;
+      box-sizing: border-box;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      text-shadow: 0 1px 1px rgba(0, 0, 0, 0.3);
+    }
+
+    .top-panel-1 {
+      background: linear-gradient(to right, #111111, #2c2c2c);
+      font-weight: bold;
+    }
+
+    .top-panel-2 {
+      background: linear-gradient(to right, #00c6ff, #007aff);
+    }
+
+    .bottom-panel-1 {
+      background: linear-gradient(to right, #3a8dde, #2569be);
+      font-style: italic;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
       padding: 0 10px;
     }
 
-    #play-btn, .back-link {
+    .bottom-panel-2 {
+      background: linear-gradient(to right, #ffe082, #f4a742);
+      color: #333333;
+      font-weight: bold;
+    }
+
+    .bottom-panel-3 {
+      background: linear-gradient(to right, #4facfe, #007aff);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .bottom-panel-4 {
+      background: linear-gradient(to right, #4facfe, #007aff);
+      color: #000;
+      display: none;
+      transition: transform 0.3s ease, margin-bottom 0.3s ease;
+    }
+
+    .game-area {
+      flex: 1;
+      background: #ffffff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 10px 0;
+    }
+
+    .board {
+      display: grid;
+      grid-template-columns: repeat(11, 1fr);
+      gap: 1px;
+      background: #e0e0e0;
       padding: 10px 16px;
-      background: #4caf50;
+      width: 100%;
+      max-width: 500px;
+      aspect-ratio: 1 / 1;
+      border-radius: 14px;
+    }
+
+    .tile {
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      font-size: 0.7rem;
+      font-weight: bold;
+      color: #ffffff;
+      background: linear-gradient(to bottom, #e8f4d0, #b5f9f467);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      user-select: none;
+      text-transform: uppercase;
+      border-radius: 10px;
+      box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.2),
+        0 2px 4px rgba(0, 0, 0, 0.2);
+      transition: transform 0.1s ease;
+    }
+
+    .TW {
+      background: #f44336;
+    }
+
+    .DW {
+      background: #ffc107;
+      color: #000;
+    }
+
+    .TL {
+      background: #2196f3;
+    }
+
+    .DL {
+      background: #9e9e9e;
+    }
+
+    #fix-view-btn {
+      font-size: 12px;
+      padding: 4px 10px;
+      margin-top: -50px;
+      background-color: #007aff;
       color: white;
       border: none;
       border-radius: 6px;
-      font-size: 0.95rem;
+      box-shadow: 0 2px 4px rgba(255, 255, 255, 0.2);
       cursor: pointer;
-      text-decoration: none;
+      z-index: 10;
     }
 
-    .back-link { background: #607d8b; }
-    #play-btn:hover, .back-link:hover { background: #388e3c; }
+    #toggle-debug-btn {
+      font-size: 12px;
+      padding: 4px 10px;
+      margin-top: -50px;
+      background-color: #007aff;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      box-shadow: 0 2px 4px rgba(255, 255, 255, 0.2);
+      cursor: pointer;
+      z-index: 10;
+    }
 
-    .ghost {
-      position: fixed;
-      z-index: 1000;
-      opacity: 0.8;
+    .debug-panel {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      background: rgba(0, 0, 0, 0.85);
+      color: #00ff99;
+      font-size: 12px;
+      padding: 6px 8px;
+      font-family: monospace;
+      z-index: 999;
+      white-space: pre-line;
       pointer-events: none;
-      transform: scale(3);
+      max-height: 100%;
+      overflow-y: auto;
+    }
+
+    .debug-mode * {
+      outline: 1px solid rgba(255, 0, 0, 0.3);
+      /* soft red outline for layout */
+    }
+    .back-link {
+      display: inline-block;
+      margin-bottom: 16px;
+      background: #039be5;
+      color: white;
+      padding: 10px 16px;
+      text-decoration: none;
+      border-radius: 4px;
+      text-transform: uppercase;
     }
   </style>
 </head>
 
 <body>
-  <h1>🧩 Scrabble 13x13</h1>
-  <div id="board"></div>
-  <div id="rack"></div>
-  <div id="controls">
-    <a class="back-link" href="../../index.html">⬅ Back to Lobby</a>
-    <button id="play-btn">Play Word</button>
+  <div class="scale-wrapper" id="scale-wrapper">
+    <div class="debug-panel" id="debug-panel"></div>
+    <div class="game-frame">
+      <div class="panel top-panel-1">WORDS with Friends 2</div>
+      <div class="panel top-panel-2">Player Info Panel</div>
+      <a class="back-link" href="../index.html">⬅ Back to Lobby</a>
+      <div class="game-area">
+        <div class="board" id="board"></div>
+      </div>
+
+      <div class="panel bottom-panel-1" id="bottom-panel-1">
+        <span>Practice played FRIT for 14 points</span>
+        <button id="fix-view-btn">Fix View</button>
+        <button id="toggle-debug-btn">Toggle Debug</button>
+      </div>
+
+      <div class="panel bottom-panel-2">[ T ][ D ][ K ][ N ][ A ][ A ][ I ]</div>
+      <div class="panel bottom-panel-3">More | Pass | PLAY | Swap | Shuffle</div>
+      <div class="panel bottom-panel-4" id="bottom-panel-4"></div>
+    </div>
   </div>
 
   <script>
-    const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-    const letterValues = {
-      A:1,B:3,C:3,D:2,E:1,F:4,G:2,H:4,I:1,J:8,K:5,L:1,M:3,N:1,O:1,P:3,
-      Q:10,R:1,S:1,T:1,U:1,V:4,W:4,X:8,Y:4,Z:10
-    };
+    const fixBtn = document.getElementById("fix-view-btn");
+    const bottomPanel4 = document.querySelector('#bottom-panel-4');
+    const board = document.getElementById("board");
+    const debugPanel = document.getElementById("debug-panel");
 
-    const bonusMap = [
-      ['TW','','','','DL','','','','DL','','','','TW'],
-      ['','DW','','','','','','','','','','DW',''],
-      ['','','DW','','','','DL','','','','DW','',''],
-      ['','DL','','DW','','','','','','DW','','DL',''],
-      ['','','','','DW','','','','DW','','','',''],
-      ['','','DL','','','','DL','','','','DL','',''],
-      ['DL','','','','','','★','','','','','','DL'],
-      ['','','DL','','','','DL','','','','DL','',''],
-      ['','','','','DW','','','','DW','','','',''],
-      ['','DL','','DW','','','','','','DW','','DL',''],
-      ['','','DW','','','','DL','','','','DW','',''],
-      ['','DW','','','','','','','','','','DW',''],
-      ['TW','','','','DL','','','','DL','','','','TW']
+    const boardData = [
+      ['TW', '', '', 'DL', '', '', 'DL', '', '', '', 'TW'],
+      ['', 'DW', '', '', '', 'TL', '', '', '', 'DW', ''],
+      ['', '', 'DW', '', '', '', '', '', 'DW', '', ''],
+      ['DL', '', '', 'DW', '', '', '', 'DW', '', '', 'DL'],
+      ['', '', '', '', 'DW', '', 'DW', '', '', '', ''],
+      ['', 'TL', '', '', '', '★', '', '', '', 'TL', ''],
+      ['', '', '', '', 'DW', '', 'DW', '', '', '', ''],
+      ['DL', '', '', 'DW', '', '', '', 'DW', '', '', 'DL'],
+      ['', '', 'DW', '', '', '', '', '', 'DW', '', ''],
+      ['', 'DW', '', '', '', 'TL', '', '', '', 'DW', ''],
+      ['TW', '', '', 'DL', '', '', 'DL', '', '', '', 'TW']
     ];
 
-    const board = document.getElementById('board');
-    const rack = document.getElementById('rack');
-    let draggedTile = null;
+    boardData.forEach(row => {
+      row.forEach(cell => {
+        const tile = document.createElement("div");
+        tile.className = "tile " + (cell || "");
+        tile.textContent = cell || '';
+        board.appendChild(tile);
+      });
+    });
 
-    function createTile(letter) {
-      const tile = document.createElement('div');
-      tile.className = 'tile';
-      tile.textContent = letter;
-      tile.dataset.letter = letter;
-      
-      let isDragging = false;
-      let tileGhost = null;
-
-      function startDrag(e) {
-        e.preventDefault();
-        isDragging = true;
-        draggedTile = tile;
-        
-        tileGhost = tile.cloneNode(true);
-        tileGhost.className = 'tile ghost';
-        document.body.appendChild(tileGhost);
-        
-        const x = e.clientX || (e.touches && e.touches[0] && e.touches[0].clientX) || 0;
-        const y = e.clientY || (e.touches && e.touches[0] && e.touches[0].clientY) || 0;
-        updateGhost(x, y);
-        
-        // Add document listeners for this specific drag
-        document.addEventListener('mousemove', handleMouseMove);
-        document.addEventListener('mouseup', handleMouseUp);
-        document.addEventListener('touchmove', handleTouchMove, { passive: false });
-        document.addEventListener('touchend', handleTouchEnd, { passive: false });
-      }
-
-      function handleMouseMove(e) {
-        if (!isDragging || !tileGhost) return;
-        updateGhost(e.clientX, e.clientY);
-      }
-      
-      function handleTouchMove(e) {
-        if (!isDragging || !tileGhost) return;
-        e.preventDefault();
-        const x = e.touches && e.touches[0] && e.touches[0].clientX || 0;
-        const y = e.touches && e.touches[0] && e.touches[0].clientY || 0;
-        updateGhost(x, y);
-      }
-
-      function handleMouseUp(e) {
-        if (!isDragging) return;
-        endDrag(e.clientX, e.clientY);
-      }
-      
-      function handleTouchEnd(e) {
-        if (!isDragging) return;
-        e.preventDefault();
-        const touch = e.changedTouches && e.changedTouches[0];
-        const x = touch ? touch.clientX : (tileGhost ? parseInt(tileGhost.style.left) + 18 : 0);
-        const y = touch ? touch.clientY : (tileGhost ? parseInt(tileGhost.style.top) + 18 : 0);
-        endDrag(x, y);
-      }
-
-      function endDrag(x, y) {
-        if (!x || !y) {
-          cleanup();
-          return;
-        }
-        
-        const target = document.elementFromPoint(x, y);
-        const isValidTarget = target && 
-                             (target.classList.contains('cell') || target.classList.contains('rack-slot')) && 
-                             !target.hasChildNodes();
-
-        if (isValidTarget) {
-          const parent = tile.parentElement;
-          if (parent && parent.classList.contains('cell')) {
-            parent.dataset.tile = '';
-          }
-          
-          target.appendChild(tile);
-          if (target.classList.contains('cell')) {
-            target.dataset.tile = tile.dataset.letter;
-          }
-        }
-
-        cleanup();
-      }
-      
-      function cleanup() {
-        if (tileGhost) {
-          tileGhost.remove();
-          tileGhost = null;
-        }
-        isDragging = false;
-        draggedTile = null;
-        
-        // Remove document listeners
-        document.removeEventListener('mousemove', handleMouseMove);
-        document.removeEventListener('mouseup', handleMouseUp);
-        document.removeEventListener('touchmove', handleTouchMove);
-        document.removeEventListener('touchend', handleTouchEnd);
-      }
-
-      function updateGhost(x, y) {
-        if (!tileGhost || !x || !y) return;
-        const size = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--cell-size')) || 36;
-        const scaledSize = size * 3;
-        tileGhost.style.left = `${x - scaledSize/2}px`;
-        tileGhost.style.top = `${y - scaledSize/2}px`;
-      }
-
-      // Start drag events
-      tile.addEventListener('mousedown', startDrag);
-      tile.addEventListener('touchstart', startDrag, { passive: false });
-
-      return tile;
+    function createBox(unit) {
+      const el = document.createElement('div');
+      el.style.height = `100${unit}`;
+      el.style.position = 'absolute';
+      el.style.top = '-1000px';
+      el.style.width = '1px';
+      document.body.appendChild(el);
+      const height = el.getBoundingClientRect().height;
+      document.body.removeChild(el);
+      return height;
     }
 
-    // Build board
-    for (let r = 0; r < 13; r++) {
-      for (let c = 0; c < 13; c++) {
-        const cell = document.createElement('div');
-        const bonus = bonusMap[r][c];
-        cell.className = 'cell' + (bonus ? ' ' + bonus : '');
-        cell.dataset.row = r;
-        cell.dataset.col = c;
-        cell.dataset.tile = '';
-        if (bonus) cell.dataset.bonus = bonus;
-        board.appendChild(cell);
-      }
+    function detectEnvironment() {
+      const ua = navigator.userAgent;
+      const isAndroid = /Android/i.test(ua);
+      const isIOS = /iPhone|iPad|iPod/i.test(ua);
+      const isWebView =
+        (isIOS && !/Safari/.test(ua)) ||
+        (isAndroid && /\bwv\b/.test(ua)) ||
+        (window.ReactNativeWebView !== undefined);
+
+      return {
+        platform: isAndroid ? 'Android' : isIOS ? 'iOS' : 'Desktop',
+        androidVersion: (ua.match(/Android\s([0-9\.]+)/) || [])[1] || 'N/A',
+        deviceMake: (ua.match(/\((?:Linux; Android [^;]+); ([^)]+)\)/) || [])[1] || 'Unknown',
+        isWebView,
+        userAgent: ua,
+        browserEngine:
+          /Chrome/i.test(ua) ? 'Chrome' :
+            /Safari/i.test(ua) ? 'Safari' :
+              /Firefox/i.test(ua) ? 'Firefox' : 'Unknown',
+      };
     }
 
-    // Generate rack
-    function generateRack() {
-      rack.innerHTML = '';
-      for (let i = 0; i < 7; i++) {
-        const slot = document.createElement('div');
-        slot.className = 'rack-slot';
-        const letter = letters[Math.floor(Math.random() * letters.length)];
-        slot.appendChild(createTile(letter));
-        rack.appendChild(slot);
-      }
+    function updateDebugPanel() {
+      const env = detectEnvironment();
+      const vh = createBox('vh');
+      const dvh = createBox('dvh');
+      const svh = createBox('svh');
+      const lvh = createBox('lvh');
+
+      const debugText = `
+🔍 Environment
+- Platform: ${env.platform}
+- Android Version: ${env.androidVersion}
+- Device: ${env.deviceMake}
+- WebView: ${env.isWebView}
+- Engine: ${env.browserEngine}
+
+📱 Viewport
+- Screen: ${screen.width} × ${screen.height}
+- DPR: ${window.devicePixelRatio}
+- Window: ${window.innerWidth} × ${window.innerHeight}
+- Orientation: ${screen.orientation?.type || 'N/A'}
+
+📏 Units
+- 100vh  = ${vh}px
+- 100dvh = ${dvh}px
+- 100svh = ${svh}px
+- 100lvh = ${lvh}px
+
+✅ Support
+- dvh: ${Math.abs(vh - dvh) > 5}
+- svh: ${Math.abs(vh - svh) > 5}
+- lvh: ${Math.abs(vh - lvh) > 5}
+
+📦 Panel 4 Visible: ${bottomPanel4.style.display || 'none'}
+`.trim();
+
+      debugPanel.textContent = debugText;
     }
 
-    // Play button
-    document.getElementById('play-btn').onclick = () => {
-      const playedTiles = [...document.querySelectorAll('.cell')]
-        .filter(cell => cell.dataset.tile)
-        .map(cell => ({
-          letter: cell.dataset.tile,
-          row: +cell.dataset.row,
-          col: +cell.dataset.col
-        }));
-
-      if (!playedTiles.length) {
-        alert('Place tiles on the board first.');
-        return;
+    fixBtn.addEventListener("click", () => {
+      const isFixed = bottomPanel4.style.display !== "flex";
+      fixBtn.textContent = isFixed ? "Undo Fix" : "Fix View";
+      bottomPanel4.style.display = isFixed ? "flex" : "none";
+      updateDebugPanel();
+    });
+    const toggleDebugBtn = document.getElementById("toggle-debug-btn");
+    toggleDebugBtn.addEventListener("click", () => {
+      const isVisible = debugPanel.style.display !== "none";
+      debugPanel.style.display = isVisible ? "none" : "block";
+      toggleDebugBtn.textContent = isVisible ? "Show Debug" : "Hide Debug";
+      if (!isVisible) {
+        document.body.classList.add('debug-mode');
+      } else {
+        document.body.classList.remove('debug-mode');
       }
-
-      const score = playedTiles.reduce((sum, t) => sum + (letterValues[t.letter] || 0), 0);
-      alert(`Word Score: ${score} points`);
-      generateRack();
-    };
-
-    generateRack();
+    });
+    //window.addEventListener('load', updateDebugPanel);
+    //window.addEventListener('resize', updateDebugPanel);
   </script>
 </body>
+
 </html>
