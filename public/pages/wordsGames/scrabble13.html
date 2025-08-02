@@ -213,17 +213,13 @@
     <div class="game-frame">
       <div class="panel top-panel-1">WORDS with Friends 2</div>
       <div class="panel top-panel-2">Player Info Panel</div>
-      <a class="back-link" href="../index.html">⬅ Back to Lobby</a>
+      <a class="back-link" href="../../index.html">⬅ Back to Lobby</a>
       <div class="game-area">
         <div class="board" id="board"></div>
       </div>
-
       <div class="panel bottom-panel-1" id="bottom-panel-1">
         <span>Practice played FRIT for 14 points</span>
-        <button id="fix-view-btn">Fix View</button>
-        <button id="toggle-debug-btn">Toggle Debug</button>
       </div>
-
       <div class="panel bottom-panel-2">[ T ][ D ][ K ][ N ][ A ][ A ][ I ]</div>
       <div class="panel bottom-panel-3">More | Pass | PLAY | Swap | Shuffle</div>
       <div class="panel bottom-panel-4" id="bottom-panel-4"></div>
@@ -231,11 +227,8 @@
   </div>
 
   <script>
-    const fixBtn = document.getElementById("fix-view-btn");
     const bottomPanel4 = document.querySelector('#bottom-panel-4');
     const board = document.getElementById("board");
-    const debugPanel = document.getElementById("debug-panel");
-
     const boardData = [
       ['TW', '', '', 'DL', '', '', 'DL', '', '', '', 'TW'],
       ['', 'DW', '', '', '', 'TL', '', '', '', 'DW', ''],
@@ -271,85 +264,6 @@
       return height;
     }
 
-    function detectEnvironment() {
-      const ua = navigator.userAgent;
-      const isAndroid = /Android/i.test(ua);
-      const isIOS = /iPhone|iPad|iPod/i.test(ua);
-      const isWebView =
-        (isIOS && !/Safari/.test(ua)) ||
-        (isAndroid && /\bwv\b/.test(ua)) ||
-        (window.ReactNativeWebView !== undefined);
-
-      return {
-        platform: isAndroid ? 'Android' : isIOS ? 'iOS' : 'Desktop',
-        androidVersion: (ua.match(/Android\s([0-9\.]+)/) || [])[1] || 'N/A',
-        deviceMake: (ua.match(/\((?:Linux; Android [^;]+); ([^)]+)\)/) || [])[1] || 'Unknown',
-        isWebView,
-        userAgent: ua,
-        browserEngine:
-          /Chrome/i.test(ua) ? 'Chrome' :
-            /Safari/i.test(ua) ? 'Safari' :
-              /Firefox/i.test(ua) ? 'Firefox' : 'Unknown',
-      };
-    }
-
-    function updateDebugPanel() {
-      const env = detectEnvironment();
-      const vh = createBox('vh');
-      const dvh = createBox('dvh');
-      const svh = createBox('svh');
-      const lvh = createBox('lvh');
-
-      const debugText = `
-🔍 Environment
-- Platform: ${env.platform}
-- Android Version: ${env.androidVersion}
-- Device: ${env.deviceMake}
-- WebView: ${env.isWebView}
-- Engine: ${env.browserEngine}
-
-📱 Viewport
-- Screen: ${screen.width} × ${screen.height}
-- DPR: ${window.devicePixelRatio}
-- Window: ${window.innerWidth} × ${window.innerHeight}
-- Orientation: ${screen.orientation?.type || 'N/A'}
-
-📏 Units
-- 100vh  = ${vh}px
-- 100dvh = ${dvh}px
-- 100svh = ${svh}px
-- 100lvh = ${lvh}px
-
-✅ Support
-- dvh: ${Math.abs(vh - dvh) > 5}
-- svh: ${Math.abs(vh - svh) > 5}
-- lvh: ${Math.abs(vh - lvh) > 5}
-
-📦 Panel 4 Visible: ${bottomPanel4.style.display || 'none'}
-`.trim();
-
-      debugPanel.textContent = debugText;
-    }
-
-    fixBtn.addEventListener("click", () => {
-      const isFixed = bottomPanel4.style.display !== "flex";
-      fixBtn.textContent = isFixed ? "Undo Fix" : "Fix View";
-      bottomPanel4.style.display = isFixed ? "flex" : "none";
-      updateDebugPanel();
-    });
-    const toggleDebugBtn = document.getElementById("toggle-debug-btn");
-    toggleDebugBtn.addEventListener("click", () => {
-      const isVisible = debugPanel.style.display !== "none";
-      debugPanel.style.display = isVisible ? "none" : "block";
-      toggleDebugBtn.textContent = isVisible ? "Show Debug" : "Hide Debug";
-      if (!isVisible) {
-        document.body.classList.add('debug-mode');
-      } else {
-        document.body.classList.remove('debug-mode');
-      }
-    });
-    //window.addEventListener('load', updateDebugPanel);
-    //window.addEventListener('resize', updateDebugPanel);
   </script>
 </body>
 
