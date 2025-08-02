@@ -289,10 +289,10 @@
         draggedTile.style.transform = 'scale(1.8)';
         document.body.appendChild(draggedTile);
 
-        // Capture offset between pointer and tile top-left
-        const rect = target.getBoundingClientRect();
-        dragOffsetX = e.clientX - rect.left;
-        dragOffsetY = e.clientY - rect.top;
+
+        // Instead of using tile size, use a fixed slight offset
+        dragOffsetX = 25;  // adjust horizontally
+        dragOffsetY = 25;  // adjust vertically
 
         moveDraggedTile(e);
       });
@@ -322,26 +322,31 @@
       };
     };
 
-    const dropTileOnBoard = (e) => {
-      const x = e.clientX;
-      const y = e.clientY;
-      const elementUnderPointer = document.elementFromPoint(x, y);
+    const dropTileOnBoard = () => {
+      if (!draggedTile) return;
 
-      // Make sure it's a board cell
-      if (elementUnderPointer && elementUnderPointer.classList.contains('tile')) {
-        // Avoid double-placing
-        if (elementUnderPointer.textContent.trim() === '' || ['TW', 'DW', 'TL', 'DL', '★'].includes(elementUnderPointer.textContent.trim())) {
-          // Place the letter
-          elementUnderPointer.textContent = draggedTile.textContent;
-          elementUnderPointer.style.background = '#f4d03f'; // like rack tile
-          elementUnderPointer.style.color = '#000';
-          elementUnderPointer.classList.add('placed-tile');
+      // Get center of the dragged tile
+      const rect = draggedTile.getBoundingClientRect();
+      const centerX = rect.left + rect.width / 2;
+      const centerY = rect.top + rect.height / 2;
 
-          // Optional: mark it with a custom class or data
-          elementUnderPointer.dataset.letter = draggedTile.textContent;
+      // Find the element under that center point
+      const target = document.elementFromPoint(centerX, centerY);
+
+      if (target && target.classList.contains('tile')) {
+        const cellText = target.textContent.trim();
+        const isBonusCell = ['TW', 'DW', 'TL', 'DL', '★'].includes(cellText);
+
+        if (cellText === '' || isBonusCell) {
+          target.textContent = draggedTile.textContent;
+          target.style.background = '#f4d03f';
+          target.style.color = '#000';
+          target.classList.add('placed-tile');
+          target.dataset.letter = draggedTile.textContent;
         }
       }
     };
+
     document.addEventListener('pointerup', (e) => {
       if (draggedTile) {
         dropTileOnBoard(e);
