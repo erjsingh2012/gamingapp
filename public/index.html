@@ -25,12 +25,12 @@
   <script defer src="/__/firebase/init.js?useEmulator=true"></script>
 
   <style media="screen">
+    html,
     body {
-      background: #ECEFF1;
-      color: rgba(0, 0, 0, 0.87);
-      font-family: Roboto, Helvetica, Arial, sans-serif;
-      margin: 0;
-      padding: 0;
+      height: auto;
+      min-height: 100vh;
+      overflow-x: hidden;
+      overflow-y: auto;
     }
 
     #message {
@@ -126,87 +126,96 @@
       border-radius: 4px;
       text-transform: uppercase;
     }
+
+    #games {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 16px;
+      padding: 16px;
+      margin-bottom: 32px;
+    }
   </style>
 </head>
 
 <body>
   <div id="lobby">
     <h1 style="text-align:center;">🎮 Game Lobby</h1>
-   <div id="games" style="display: flex; flex-wrap: wrap; justify-content: center; gap: 16px; padding: 16px;">
+    <div id="games" style="display: flex; flex-wrap: wrap; justify-content: center; gap: 16px; padding: 16px;">
 
-  <div class="game-card">
-    <h3>Words With Friends</h3>
-    <p>Play the classic word puzzle game with friends.</p>
-    <a href="pages/wordswithfriends.html">Play</a>
-  </div>
+      <div class="game-card">
+        <h3>Words With Friends</h3>
+        <p>Play the classic word puzzle game with friends.</p>
+        <a href="pages/wordswithfriends.html">Play</a>
+      </div>
 
-  <div class="game-card">
-    <h3>Viewport Height Tester</h3>
-    <p>Test and debug mobile viewport height issues.</p>
-    <a href="pages/viewportheight.html">Open</a>
-  </div>
+      <div class="game-card">
+        <h3>Viewport Height Tester</h3>
+        <p>Test and debug mobile viewport height issues.</p>
+        <a href="pages/viewportheight.html">Open</a>
+      </div>
 
-  <div class="game-card">
-    <h3>Memory Match</h3>
-    <p>Flip cards and match pairs to win.</p>
-    <a href="pages/memory.html">Play</a>
-  </div>
+      <div class="game-card">
+        <h3>Memory Match</h3>
+        <p>Flip cards and match pairs to win.</p>
+        <a href="pages/memory.html">Play</a>
+      </div>
 
-  <div class="game-card">
-    <h3>Sudoku</h3>
-    <p>Fill the grid with numbers without repeating.</p>
-    <a href="pages/sudoku.html">Play</a>
-  </div>
+      <div class="game-card">
+        <h3>Sudoku</h3>
+        <p>Fill the grid with numbers without repeating.</p>
+        <a href="pages/sudoku.html">Play</a>
+      </div>
 
-  <div class="game-card">
-    <h3>2048</h3>
-    <p>Join the numbers and get to the 2048 tile.</p>
-    <a href="pages/2048.html">Play</a>
-  </div>
+      <div class="game-card">
+        <h3>2048</h3>
+        <p>Join the numbers and get to the 2048 tile.</p>
+        <a href="pages/2048.html">Play</a>
+      </div>
 
-  <div class="game-card">
-    <h3>Tic Tac Toe</h3>
-    <p>Classic X and O game for two players.</p>
-    <a href="pages/tictactoe.html">Play</a>
-  </div>
+      <div class="game-card">
+        <h3>Tic Tac Toe</h3>
+        <p>Classic X and O game for two players.</p>
+        <a href="pages/tictactoe.html">Play</a>
+      </div>
 
-  <div class="game-card">
-    <h3>Snake Game</h3>
-    <p>Eat the food, grow the snake, avoid walls.</p>
-    <a href="pages/snake.html">Play</a>
-  </div>
+      <div class="game-card">
+        <h3>Snake Game</h3>
+        <p>Eat the food, grow the snake, avoid walls.</p>
+        <a href="pages/snake.html">Play</a>
+      </div>
 
-  <div class="game-card">
-    <h3>Flappy Bird</h3>
-    <p>Tap to fly and avoid the pipes!</p>
-    <a href="pages/flappybird.html">Play</a>
-  </div>
+      <div class="game-card">
+        <h3>Flappy Bird</h3>
+        <p>Tap to fly and avoid the pipes!</p>
+        <a href="pages/flappybird.html">Play</a>
+      </div>
 
-  <div class="game-card">
-    <h3>Brick Breaker</h3>
-    <p>Break all bricks with your paddle and ball.</p>
-    <a href="pages/brickbreaker.html">Play</a>
-  </div>
+      <div class="game-card">
+        <h3>Brick Breaker</h3>
+        <p>Break all bricks with your paddle and ball.</p>
+        <a href="pages/brickbreaker.html">Play</a>
+      </div>
 
-  <div class="game-card">
-    <h3>Maze Escape</h3>
-    <p>Find your way out of a challenging maze.</p>
-    <a href="pages/maze.html">Play</a>
-  </div>
+      <div class="game-card">
+        <h3>Maze Escape</h3>
+        <p>Find your way out of a challenging maze.</p>
+        <a href="pages/maze.html">Play</a>
+      </div>
 
-  <div class="game-card">
-    <h3>Typing Speed</h3>
-    <p>Test how fast you can type with accuracy.</p>
-    <a href="pages/typing.html">Play</a>
-  </div>
+      <div class="game-card">
+        <h3>Typing Speed</h3>
+        <p>Test how fast you can type with accuracy.</p>
+        <a href="pages/typing.html">Play</a>
+      </div>
 
-  <div class="game-card">
-    <h3>Math Quiz</h3>
-    <p>Sharpen your brain with quick math challenges.</p>
-    <a href="pages/mathquiz.html">Play</a>
-  </div>
+      <div class="game-card">
+        <h3>Math Quiz</h3>
+        <p>Sharpen your brain with quick math challenges.</p>
+        <a href="pages/mathquiz.html">Play</a>
+      </div>
 
-</div>
+    </div>
 
   </div>
   <p id="load">Firebase SDK Loading&hellip;</p>
