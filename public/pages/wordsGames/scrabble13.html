@@ -43,7 +43,7 @@
     }
 
     .panel {
-      height: 50px;
+      height: 100px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -173,27 +173,30 @@
       z-index: 10;
     }
 
-    .debug-panel {
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      background: rgba(0, 0, 0, 0.85);
-      color: #00ff99;
-      font-size: 12px;
-      padding: 6px 8px;
+    .panel {
       font-family: monospace;
-      z-index: 999;
-      white-space: pre-line;
-      pointer-events: none;
-      max-height: 100%;
-      overflow-y: auto;
+      font-size: 24px;
+      padding: 10px;
     }
 
-    .debug-mode * {
-      outline: 1px solid rgba(255, 0, 0, 0.3);
-      /* soft red outline for layout */
+    #rack span {
+      display: inline-block;
+      padding: 15px 20px;
+      /* increased padding */
+      margin: 6px;
+      /* more spacing between tiles */
+      background: #f4d03f;
+      border: 3px solid #9e7e38;
+      /* thicker border */
+      border-radius: 12px;
+      /* slightly more rounded corners */
+      font-size: 28px;
+      /* larger font */
+      font-weight: bold;
+      /* more readable */
+      cursor: grab;
     }
+
     .back-link {
       display: inline-block;
       margin-bottom: 16px;
@@ -220,7 +223,7 @@
       <div class="panel bottom-panel-1" id="bottom-panel-1">
         <span>Practice played FRIT for 14 points</span>
       </div>
-      <div class="panel bottom-panel-2">[ T ][ D ][ K ][ N ][ A ][ A ][ I ]</div>
+      <div class="panel bottom-panel-2" id="rack">[ T ][ D ][ K ][ N ][ A ][ A ][ I ]</div>
       <div class="panel bottom-panel-3">More | Pass | PLAY | Swap | Shuffle</div>
       <div class="panel bottom-panel-4" id="bottom-panel-4"></div>
     </div>
@@ -264,6 +267,62 @@
       return height;
     }
 
+    // Scrabble tile distribution (simplified version)
+    const tileBag = [
+      ...Array(9).fill('A'),
+      ...Array(2).fill('B'),
+      ...Array(2).fill('C'),
+      ...Array(4).fill('D'),
+      ...Array(12).fill('E'),
+      ...Array(2).fill('F'),
+      ...Array(3).fill('G'),
+      ...Array(2).fill('H'),
+      ...Array(9).fill('I'),
+      ...Array(1).fill('J'),
+      ...Array(1).fill('K'),
+      ...Array(4).fill('L'),
+      ...Array(2).fill('M'),
+      ...Array(6).fill('N'),
+      ...Array(8).fill('O'),
+      ...Array(2).fill('P'),
+      ...Array(1).fill('Q'),
+      ...Array(6).fill('R'),
+      ...Array(4).fill('S'),
+      ...Array(6).fill('T'),
+      ...Array(4).fill('U'),
+      ...Array(2).fill('V'),
+      ...Array(2).fill('W'),
+      ...Array(1).fill('X'),
+      ...Array(2).fill('Y'),
+      ...Array(1).fill('Z'),
+      ...Array(2).fill('_') // Blank tiles
+    ];
+
+    function shuffle(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+    }
+
+    function drawTiles(count) {
+      shuffle(tileBag);
+      return tileBag.splice(0, count);
+    }
+
+    function populateRack(tiles) {
+      const rack = document.getElementById('rack');
+      rack.innerHTML = '';
+      tiles.forEach(letter => {
+        const tile = document.createElement('span');
+        tile.textContent = `${letter}`;
+        rack.appendChild(tile);
+      });
+    }
+
+    // Populate rack with 7 tiles
+    const rackTiles = drawTiles(7);
+    populateRack(rackTiles);
   </script>
 </body>
 
