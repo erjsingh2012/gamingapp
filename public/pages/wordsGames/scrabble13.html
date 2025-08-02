@@ -2,7 +2,8 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
   <title>Scrabble 13x13</title>
   <style>
     :root {
@@ -12,7 +13,11 @@
     * {
       box-sizing: border-box;
     }
-
+    html, body {
+      height: 100%;
+      overflow: hidden; /* disable all scrolling */
+      touch-action: none; /* prevent touch scroll */
+    } 
     body {
       margin: 0;
       padding: 0;
@@ -164,6 +169,12 @@
   </div>
 
   <script>
+    document.body.addEventListener('touchmove', function (e) {
+      e.preventDefault();
+    }, { passive: false });
+    document.addEventListener('gesturestart', e => e.preventDefault());
+    document.addEventListener('gesturechange', e => e.preventDefault());
+    document.addEventListener('gestureend', e => e.preventDefault());
     const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     const letterValues = {
       A: 1, B: 3, C: 3, D: 2, E: 1, F: 4, G: 2, H: 4,
@@ -288,7 +299,7 @@
 
       generateRack(); // refill rack
     };
-
+    
     generateRack();
   </script>
 </body>
