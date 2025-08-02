@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Scrabble 13x13</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: sans-serif;
+      background: #f4f4f4;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    h1 {
+      margin: 16px 0;
+    }
+    #board {
+      display: grid;
+      grid-template-columns: repeat(13, 40px);
+      grid-template-rows: repeat(13, 40px);
+      gap: 2px;
+      background: #ccc;
+      padding: 10px;
+      border-radius: 12px;
+    }
+    .cell {
+      background: #eee;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.8em;
+      font-weight: bold;
+      color: #333;
+      position: relative;
+    }
+    .TW { background: #f44336; color: white; }
+    .DW { background: #ff9800; color: white; }
+    .TL { background: #2196f3; color: white; }
+    .DL { background: #9c27b0; color: white; }
+
+    #rack {
+      display: flex;
+      margin: 20px 0;
+      gap: 10px;
+    }
+    .tile {
+      width: 40px;
+      height: 40px;
+      background: #fff8dc;
+      border: 1px solid #aaa;
+      border-radius: 6px;
+      font-weight: bold;
+      font-size: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: grab;
+      box-shadow: 1px 1px 3px rgba(0,0,0,0.2);
+    }
+
+    #play-btn {
+      padding: 10px 20px;
+      background: #4caf50;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 16px;
+      cursor: pointer;
+      margin-bottom: 20px;
+    }
+
+    .cell.droppable {
+      border: 2px dashed #555;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🧩 Scrabble 13x13</h1>
+  <div id="board"></div>
+
+  <div id="rack"></div>
+  <button id="play-btn">Play Word</button>
+
+  <script>
+    const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    const letterValues = {
+      A:1, B:3, C:3, D:2, E:1, F:4, G:2, H:4,
+      I:1, J:8, K:5, L:1, M:3, N:1, O:1, P:3,
+      Q:10, R:1, S:1, T:1, U:1, V:4, W:4,
+      X:8, Y:4, Z:10
+    };
+
+    const bonusMap = [
+      // 13x13 layout, simplified bonus setup (TW, DW, TL, DL, '')
+      // You can improve this later to match real Scrabble bonuses
+      ['TW','','','','DL','','','','DL','','','','TW'],
+      ['','DW','','','','','','','','','','DW',''],
+      ['','','DW','','','','DL','','','','DW','',''],
+      ['','DL','','DW','','','','','','DW','','DL',''],
+      ['','','','','DW','','','','DW','','','',''],
+      ['','','DL','','','','DL','','','','DL','',''],
+      ['DL','','','','','','★','','','','','','DL'],
+      ['','','DL','','','','DL','','','','DL','',''],
+      ['','','','','DW','','','','DW','','','',''],
+      ['','DL','','DW','','','','','','DW','','DL',''],
+      ['','','DW','','','','DL','','','','DW','',''],
+      ['','DW','','','','','','','','','','DW',''],
+      ['TW','','','','DL','','','','DL','','','','TW']
+    ];
+
+    const board = document.getElementById('board');
+    const rack = document.getElementById('rack');
+
+    // --- Generate board
+    for (let r = 0; r < 13; r++) {
+      for (let c = 0; c < 13; c++) {
+        const cell = document.createElement('div');
+        const bonus = bonusMap[r][c];
+        cell.className = 'cell' + (bonus ? ' ' + bonus : '');
+        cell.dataset.row = r;
+        cell.dataset.col = c;
+        cell.dataset.tile = '';
+        cell.ondragover = (e) => e.preventDefault();
+        cell.ondrop = (e) => {
+          const tileLetter = e.dataTransfer.getData("text/plain");
+          if (!cell.dataset.tile) {
+            cell.textContent = tileLetter;
+            cell.dataset.tile = tileLetter;
+            cell.classList.remove('droppable');
+          }
+        };
+        cell.ondragenter = () => cell.classList.add('droppable');
+        cell.ondragleave = () => cell.classList.remove('droppable');
+        board.appendChild(cell);
+      }
+    }
+
+    // --- Generate random rack
+    function generateRack() {
+      rack.innerHTML = '';
+      for (let i = 0; i < 7; i++) {
+        const letter = letters[Math.floor(Math.random() * letters.length)];
+        const tile = document.createElement('div');
+        tile.className = 'tile';
+        tile.textContent = letter;
+        tile.draggable = true;
+        tile.dataset.letter = letter;
+        tile.ondragstart = (e) => {
+          e.dataTransfer.setData("text/plain", letter);
+        };
+        rack.appendChild(tile);
+      }
+    }
+
+    // --- Play button handler
+    document.getElementById('play-btn').onclick = () => {
+      const playedTiles = [...document.querySelectorAll('.cell')]
+        .filter(cell => cell.dataset.tile)
+        .map(cell => ({
+          letter: cell.dataset.tile,
+          row: +cell.dataset.row,
+          col: +cell.dataset.col
+        }));
+      if (playedTiles.length === 0) {
+        alert("Place tiles on the board first.");
+        return;
+      }
+
+      const score = playedTiles.reduce((sum, t) => sum + (letterValues[t.letter] || 0), 0);
+      alert(`(Basic) Word Score: ${score} points`);
+
+      // Refill rack
+      generateRack();
+    };
+
+    generateRack();
+  </script>
+</body>
+</html>
