@@ -162,6 +162,13 @@
       cursor: grab;
     }
 
+    .rack-placeholder {
+      background: #ccc;
+      color: #888;
+      font-style: italic;
+      cursor: default;
+    }
+
     .back-link {
       display: inline-block;
       margin-bottom: 16px;
@@ -325,12 +332,9 @@
     const dropTileOnBoard = () => {
       if (!draggedTile) return;
 
-      // Get center of the dragged tile
       const rect = draggedTile.getBoundingClientRect();
       const centerX = rect.left + rect.width / 2;
       const centerY = rect.top + rect.height / 2;
-
-      // Find the element under that center point
       const target = document.elementFromPoint(centerX, centerY);
 
       if (target && target.classList.contains('tile')) {
@@ -338,14 +342,27 @@
         const isBonusCell = ['TW', 'DW', 'TL', 'DL', '★'].includes(cellText);
 
         if (cellText === '' || isBonusCell) {
+          // Step 1a: Place the tile on the board
           target.textContent = draggedTile.textContent;
           target.style.background = '#f4d03f';
           target.style.color = '#000';
           target.classList.add('placed-tile');
           target.dataset.letter = draggedTile.textContent;
+
+          // Step 1b: Replace the tile in the rack with a placeholder
+          const rackSpans = [...document.querySelectorAll('#rack span')];
+          const match = rackSpans.find(
+            span => span.textContent === draggedTile.textContent && !span.dataset.empty
+          );
+          if (match) {
+            match.textContent = '\u00A0';
+            match.dataset.empty = 'true';
+            match.classList.add('rack-placeholder');
+          }
         }
       }
     };
+
 
     document.addEventListener('pointerup', (e) => {
       if (draggedTile) {
