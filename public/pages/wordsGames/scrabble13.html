@@ -138,7 +138,7 @@
       z-index: 1000;
       opacity: 0.8;
       pointer-events: none;
-      transform: scale(1.2);
+      transform: scale(3);
     }
   </style>
 </head>
@@ -229,18 +229,26 @@
       function handleTouchEnd(e) {
         if (!isDragging) return;
         e.preventDefault();
-        const touch = e.changedTouches[0];
-        endDrag(touch.clientX, touch.clientY);
+        const touch = e.changedTouches && e.changedTouches[0];
+        const x = touch ? touch.clientX : (tileGhost ? parseInt(tileGhost.style.left) + 18 : 0);
+        const y = touch ? touch.clientY : (tileGhost ? parseInt(tileGhost.style.top) + 18 : 0);
+        endDrag(x, y);
       }
 
       function endDrag(x, y) {
+        if (!x || !y) {
+          cleanup();
+          return;
+        }
+        
         const target = document.elementFromPoint(x, y);
-        const isValidTarget = (target?.classList.contains('cell') || target?.classList.contains('rack-slot')) 
-                             && !target.hasChildNodes();
+        const isValidTarget = target && 
+                             (target.classList.contains('cell') || target.classList.contains('rack-slot')) && 
+                             !target.hasChildNodes();
 
         if (isValidTarget) {
           const parent = tile.parentElement;
-          if (parent?.classList.contains('cell')) {
+          if (parent && parent.classList.contains('cell')) {
             parent.dataset.tile = '';
           }
           
@@ -250,7 +258,10 @@
           }
         }
 
-        // Cleanup
+        cleanup();
+      }
+      
+      function cleanup() {
         if (tileGhost) {
           tileGhost.remove();
           tileGhost = null;
@@ -268,8 +279,9 @@
       function updateGhost(x, y) {
         if (!tileGhost || !x || !y) return;
         const size = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--cell-size')) || 36;
-        tileGhost.style.left = `${x - size/2}px`;
-        tileGhost.style.top = `${y - size/2}px`;
+        const scaledSize = size * 3;
+        tileGhost.style.left = `${x - scaledSize/2}px`;
+        tileGhost.style.top = `${y - scaledSize/2}px`;
       }
 
       // Start drag events
