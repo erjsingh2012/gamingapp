@@ -1,8 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Scrabble 13x13</title>
   <style>
@@ -14,13 +13,6 @@
       box-sizing: border-box;
     }
 
-    html,
-    body {
-      height: 100%;
-      overflow: hidden;
-      touch-action: pan-x pan-y;
-    }
-
     body {
       margin: 0;
       padding: 0;
@@ -29,6 +21,7 @@
       display: flex;
       flex-direction: column;
       align-items: center;
+      overflow-x: hidden;
     }
 
     h1 {
@@ -47,7 +40,6 @@
       padding: 8px;
       border-radius: 12px;
       box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-      max-width: 100vw;
     }
 
     .cell {
@@ -62,25 +54,10 @@
       position: relative;
     }
 
-    .TW {
-      background: #d32f2f;
-      color: white;
-    }
-
-    .DW {
-      background: #f57c00;
-      color: white;
-    }
-
-    .TL {
-      background: #1976d2;
-      color: white;
-    }
-
-    .DL {
-      background: #7b1fa2;
-      color: white;
-    }
+    .TW { background: #d32f2f; color: white; }
+    .DW { background: #f57c00; color: white; }
+    .TL { background: #1976d2; color: white; }
+    .DL { background: #7b1fa2; color: white; }
 
     .cell::after {
       content: attr(data-bonus);
@@ -98,7 +75,6 @@
       margin: 16px 0;
       justify-content: center;
       padding: 0 10px;
-      max-width: 100vw;
     }
 
     .rack-slot {
@@ -125,25 +101,12 @@
       justify-content: center;
       cursor: grab;
       box-shadow: 1px 2px 4px rgba(0, 0, 0, 0.15);
-      transition: transform 0.2s;
       user-select: none;
-      -webkit-user-select: none;
-      -webkit-touch-callout: none;
-      -webkit-tap-highlight-color: transparent;
+      touch-action: none;
     }
 
     .tile:active {
       cursor: grabbing;
-      transform: scale(0.95);
-    }
-
-    @media (hover: none) and (pointer: coarse) {
-      .tile {
-        cursor: default;
-      }
-      .tile:active {
-        cursor: default;
-      }
     }
 
     #controls {
@@ -156,8 +119,7 @@
       padding: 0 10px;
     }
 
-    #play-btn,
-    .back-link {
+    #play-btn, .back-link {
       padding: 10px 16px;
       background: #4caf50;
       color: white;
@@ -168,13 +130,15 @@
       text-decoration: none;
     }
 
-    .back-link {
-      background: #607d8b;
-    }
+    .back-link { background: #607d8b; }
+    #play-btn:hover, .back-link:hover { background: #388e3c; }
 
-    #play-btn:hover,
-    .back-link:hover {
-      background: #388e3c;
+    .ghost {
+      position: fixed;
+      z-index: 1000;
+      opacity: 0.8;
+      pointer-events: none;
+      transform: scale(1.2);
     }
   </style>
 </head>
@@ -189,163 +153,133 @@
   </div>
 
   <script>
-    // Prevent unwanted gestures and scrolling during drag
-    let isDraggingAnyTile = false;
-    
-    document.body.addEventListener('touchmove', e => {
-      if (isDraggingAnyTile) {
-        e.preventDefault();
-      }
-    }, { passive: false });
-    
-    document.addEventListener('gesturestart', e => e.preventDefault());
-    document.addEventListener('gesturechange', e => e.preventDefault());
-    document.addEventListener('gestureend', e => e.preventDefault());
-    
-    // Track global drag state
-    document.addEventListener('pointerdown', (e) => {
-      if (e.target.classList.contains('tile')) {
-        isDraggingAnyTile = true;
-      }
-    });
-    
-    document.addEventListener('pointerup', () => {
-      isDraggingAnyTile = false;
-    });
-    
-    document.addEventListener('touchstart', (e) => {
-      if (e.target.classList.contains('tile')) {
-        isDraggingAnyTile = true;
-      }
-    });
-    
-    document.addEventListener('touchend', () => {
-      isDraggingAnyTile = false;
-    });
-
     const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     const letterValues = {
-      A: 1, B: 3, C: 3, D: 2, E: 1, F: 4, G: 2, H: 4,
-      I: 1, J: 8, K: 5, L: 1, M: 3, N: 1, O: 1, P: 3,
-      Q: 10, R: 1, S: 1, T: 1, U: 1, V: 4, W: 4,
-      X: 8, Y: 4, Z: 10
+      A:1,B:3,C:3,D:2,E:1,F:4,G:2,H:4,I:1,J:8,K:5,L:1,M:3,N:1,O:1,P:3,
+      Q:10,R:1,S:1,T:1,U:1,V:4,W:4,X:8,Y:4,Z:10
     };
 
     const bonusMap = [
-      ['TW', '', '', '', 'DL', '', '', '', 'DL', '', '', '', 'TW'],
-      ['', 'DW', '', '', '', '', '', '', '', '', '', 'DW', ''],
-      ['', '', 'DW', '', '', '', 'DL', '', '', '', 'DW', '', ''],
-      ['', 'DL', '', 'DW', '', '', '', '', '', 'DW', '', 'DL', ''],
-      ['', '', '', '', 'DW', '', '', '', 'DW', '', '', '', ''],
-      ['', '', 'DL', '', '', '', 'DL', '', '', '', 'DL', '', ''],
-      ['DL', '', '', '', '', '', '★', '', '', '', '', '', 'DL'],
-      ['', '', 'DL', '', '', '', 'DL', '', '', '', 'DL', '', ''],
-      ['', '', '', '', 'DW', '', '', '', 'DW', '', '', '', ''],
-      ['', 'DL', '', 'DW', '', '', '', '', '', 'DW', '', 'DL', ''],
-      ['', '', 'DW', '', '', '', 'DL', '', '', '', 'DW', '', ''],
-      ['', 'DW', '', '', '', '', '', '', '', '', '', 'DW', ''],
-      ['TW', '', '', '', 'DL', '', '', '', 'DL', '', '', '', 'TW']
+      ['TW','','','','DL','','','','DL','','','','TW'],
+      ['','DW','','','','','','','','','','DW',''],
+      ['','','DW','','','','DL','','','','DW','',''],
+      ['','DL','','DW','','','','','','DW','','DL',''],
+      ['','','','','DW','','','','DW','','','',''],
+      ['','','DL','','','','DL','','','','DL','',''],
+      ['DL','','','','','','★','','','','','','DL'],
+      ['','','DL','','','','DL','','','','DL','',''],
+      ['','','','','DW','','','','DW','','','',''],
+      ['','DL','','DW','','','','','','DW','','DL',''],
+      ['','','DW','','','','DL','','','','DW','',''],
+      ['','DW','','','','','','','','','','DW',''],
+      ['TW','','','','DL','','','','DL','','','','TW']
     ];
 
     const board = document.getElementById('board');
     const rack = document.getElementById('rack');
+    let draggedTile = null;
 
     function createTile(letter) {
       const tile = document.createElement('div');
       tile.className = 'tile';
       tile.textContent = letter;
       tile.dataset.letter = letter;
-      tile.style.touchAction = 'none';
-
-      let ghostTile = null;
+      
       let isDragging = false;
+      let tileGhost = null;
 
-      function handleStart(e) {
+      function startDrag(e) {
         e.preventDefault();
         isDragging = true;
-        isDraggingAnyTile = true;
+        draggedTile = tile;
         
-        ghostTile = tile.cloneNode(true);
-        ghostTile.style.position = 'fixed';
-        ghostTile.style.pointerEvents = 'none';
-        ghostTile.style.opacity = '0.85';
-        ghostTile.style.zIndex = '1000';
-        ghostTile.style.transform = 'scale(1.2)';
-        ghostTile.style.transformOrigin = 'center';
-        document.body.appendChild(ghostTile);
-
-        const clientX = e.clientX || (e.touches && e.touches[0].clientX);
-        const clientY = e.clientY || (e.touches && e.touches[0].clientY);
-        moveGhost(clientX, clientY);
+        tileGhost = tile.cloneNode(true);
+        tileGhost.className = 'tile ghost';
+        document.body.appendChild(tileGhost);
         
-        if (e.pointerId) tile.setPointerCapture(e.pointerId);
+        const x = e.clientX || (e.touches && e.touches[0] && e.touches[0].clientX) || 0;
+        const y = e.clientY || (e.touches && e.touches[0] && e.touches[0].clientY) || 0;
+        updateGhost(x, y);
+        
+        // Add document listeners for this specific drag
+        document.addEventListener('mousemove', handleMouseMove);
+        document.addEventListener('mouseup', handleMouseUp);
+        document.addEventListener('touchmove', handleTouchMove, { passive: false });
+        document.addEventListener('touchend', handleTouchEnd, { passive: false });
       }
 
-      function handleMove(e) {
-        if (ghostTile && isDragging) {
-          e.preventDefault();
-          const clientX = e.clientX || (e.touches && e.touches[0].clientX);
-          const clientY = e.clientY || (e.touches && e.touches[0].clientY);
-          moveGhost(clientX, clientY);
-        }
+      function handleMouseMove(e) {
+        if (!isDragging || !tileGhost) return;
+        updateGhost(e.clientX, e.clientY);
+      }
+      
+      function handleTouchMove(e) {
+        if (!isDragging || !tileGhost) return;
+        e.preventDefault();
+        const x = e.touches && e.touches[0] && e.touches[0].clientX || 0;
+        const y = e.touches && e.touches[0] && e.touches[0].clientY || 0;
+        updateGhost(x, y);
       }
 
-      function handleEnd(e) {
-        if (ghostTile && isDragging) {
-          e.preventDefault();
-          const clientX = e.clientX || (e.changedTouches && e.changedTouches[0].clientX);
-          const clientY = e.clientY || (e.changedTouches && e.changedTouches[0].clientY);
-          
-          const target = document.elementFromPoint(clientX, clientY);
-          const isCell = target?.classList.contains('cell');
-          const isRack = target?.classList.contains('rack-slot');
+      function handleMouseUp(e) {
+        if (!isDragging) return;
+        endDrag(e.clientX, e.clientY);
+      }
+      
+      function handleTouchEnd(e) {
+        if (!isDragging) return;
+        e.preventDefault();
+        const touch = e.changedTouches[0];
+        endDrag(touch.clientX, touch.clientY);
+      }
 
-          if ((isCell || isRack) && !target.hasChildNodes()) {
-            const parent = tile.parentElement;
+      function endDrag(x, y) {
+        const target = document.elementFromPoint(x, y);
+        const isValidTarget = (target?.classList.contains('cell') || target?.classList.contains('rack-slot')) 
+                             && !target.hasChildNodes();
 
-            if (parent?.classList.contains('rack-slot') || parent?.classList.contains('cell')) {
-              parent.innerHTML = '';
-              if (parent.classList.contains('cell')) {
-                parent.dataset.tile = '';
-              }
-            }
-
-            target.appendChild(tile);
-            if (isCell) {
-              target.dataset.tile = tile.dataset.letter;
-            }
+        if (isValidTarget) {
+          const parent = tile.parentElement;
+          if (parent?.classList.contains('cell')) {
+            parent.dataset.tile = '';
           }
-
-          ghostTile.remove();
-          ghostTile = null;
-          isDragging = false;
+          
+          target.appendChild(tile);
+          if (target.classList.contains('cell')) {
+            target.dataset.tile = tile.dataset.letter;
+          }
         }
+
+        // Cleanup
+        if (tileGhost) {
+          tileGhost.remove();
+          tileGhost = null;
+        }
+        isDragging = false;
+        draggedTile = null;
+        
+        // Remove document listeners
+        document.removeEventListener('mousemove', handleMouseMove);
+        document.removeEventListener('mouseup', handleMouseUp);
+        document.removeEventListener('touchmove', handleTouchMove);
+        document.removeEventListener('touchend', handleTouchEnd);
       }
 
-      function moveGhost(x, y) {
-        if (ghostTile) {
-          const size = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--cell-size'));
-          ghostTile.style.left = `${x - size/2}px`;
-          ghostTile.style.top = `${y - size/2}px`;
-        }
+      function updateGhost(x, y) {
+        if (!tileGhost || !x || !y) return;
+        const size = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--cell-size')) || 36;
+        tileGhost.style.left = `${x - size/2}px`;
+        tileGhost.style.top = `${y - size/2}px`;
       }
 
-      // Pointer events (modern browsers)
-      tile.addEventListener('pointerdown', handleStart);
-      tile.addEventListener('pointermove', handleMove);
-      tile.addEventListener('pointerup', handleEnd);
-      tile.addEventListener('pointercancel', handleEnd);
-
-      // Touch events (fallback)
-      tile.addEventListener('touchstart', handleStart, { passive: false });
-      tile.addEventListener('touchmove', handleMove, { passive: false });
-      tile.addEventListener('touchend', handleEnd, { passive: false });
-      tile.addEventListener('touchcancel', handleEnd, { passive: false });
+      // Start drag events
+      tile.addEventListener('mousedown', startDrag);
+      tile.addEventListener('touchstart', startDrag, { passive: false });
 
       return tile;
     }
 
-    // Build 13x13 board
+    // Build board
     for (let r = 0; r < 13; r++) {
       for (let c = 0; c < 13; c++) {
         const cell = document.createElement('div');
@@ -359,7 +293,7 @@
       }
     }
 
-    // Fill rack
+    // Generate rack
     function generateRack() {
       rack.innerHTML = '';
       for (let i = 0; i < 7; i++) {
@@ -371,6 +305,7 @@
       }
     }
 
+    // Play button
     document.getElementById('play-btn').onclick = () => {
       const playedTiles = [...document.querySelectorAll('.cell')]
         .filter(cell => cell.dataset.tile)
@@ -380,18 +315,17 @@
           col: +cell.dataset.col
         }));
 
-      if (playedTiles.length === 0) {
-        alert("Place tiles on the board first.");
+      if (!playedTiles.length) {
+        alert('Place tiles on the board first.');
         return;
       }
 
       const score = playedTiles.reduce((sum, t) => sum + (letterValues[t.letter] || 0), 0);
-      alert(`(Basic) Word Score: ${score} points`);
+      alert(`Word Score: ${score} points`);
       generateRack();
     };
 
     generateRack();
   </script>
 </body>
-
 </html>
