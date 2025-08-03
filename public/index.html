@@ -218,6 +218,40 @@
       row-gap: 12px;
       font-size: 16px;
     }
+
+    .carousel-wrapper {
+      overflow: hidden;
+      padding: 0 16px;
+      margin: 24px 0;
+    }
+
+    .carousel {
+      display: flex;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      scroll-behavior: smooth;
+      -webkit-overflow-scrolling: touch;
+      gap: 16px;
+      padding-bottom: 8px;
+    }
+
+    .carousel::-webkit-scrollbar {
+      display: none;
+    }
+
+    .carousel-item {
+      flex: 0 0 66%;
+      /* 1 full + 0.5 + 0.5 panels on each side */
+      scroll-snap-align: center;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+      text-align: center;
+      padding: 24px;
+      font-size: 18px;
+      font-weight: bold;
+      transition: transform 0.3s;
+    }
   </style>
 </head>
 
@@ -244,6 +278,15 @@
           <div class="value" id="best-word">-</div>
           <div>Best Word</div>
         </div>
+      </div>
+    </div>
+    <div class="carousel-wrapper">
+      <div class="carousel">
+        <div class="carousel-item">Panel 1</div>
+        <div class="carousel-item">Panel 2</div>
+        <div class="carousel-item">Panel 3</div>
+        <div class="carousel-item">Panel 4</div>
+        <div class="carousel-item">Panel 5</div>
       </div>
     </div>
 
@@ -279,19 +322,19 @@
       <div id="dictionary-words"></div>
     </div>
     <!-- Profile Panel -->
-  <div id="profile-panel">
-    <div class="profile-header">
-      <h2>👤 Your Profile</h2>
-      <button onclick="closeProfile()">← Back</button>
+    <div id="profile-panel">
+      <div class="profile-header">
+        <h2>👤 Your Profile</h2>
+        <button onclick="closeProfile()">← Back</button>
+      </div>
+      <div class="profile-content">
+        <div><strong>Name:</strong> Player 1</div>
+        <div><strong>Total Score:</strong> <span id="profile-total-score">0</span></div>
+        <div><strong>Games Played:</strong> <span id="profile-games-played">0</span></div>
+        <div><strong>Best Score:</strong> <span id="profile-best-score">0</span></div>
+        <div><strong>Best Word:</strong> <span id="profile-best-word">-</span></div>
+      </div>
     </div>
-    <div class="profile-content">
-      <div><strong>Name:</strong> Player 1</div>
-      <div><strong>Total Score:</strong> <span id="profile-total-score">0</span></div>
-      <div><strong>Games Played:</strong> <span id="profile-games-played">0</span></div>
-      <div><strong>Best Score:</strong> <span id="profile-best-score">0</span></div>
-      <div><strong>Best Word:</strong> <span id="profile-best-word">-</span></div>
-    </div>
-  </div>
   </div>
   <script>
     document.addEventListener('DOMContentLoaded', function () {
@@ -328,6 +371,21 @@
     function closeProfile() {
       document.getElementById('profile-panel').classList.remove('active');
     }
+    document.querySelectorAll('.carousel-item').forEach(item => {
+      item.addEventListener('click', () => {
+        item.scrollIntoView({
+          behavior: 'smooth',
+          inline: 'center',
+          block: 'nearest'
+        });
+      });
+    });
+
+    // Optional: center the 3rd panel on load
+    window.addEventListener('DOMContentLoaded', () => {
+      const items = document.querySelectorAll('.carousel-item');
+      if (items[2]) items[2].scrollIntoView({ behavior: 'instant', inline: 'center' });
+    });
   </script>
 </body>
 </html>
