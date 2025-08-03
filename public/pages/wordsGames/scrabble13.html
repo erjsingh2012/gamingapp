@@ -53,16 +53,19 @@
     }
 
     .top-panel-1 {
+      height: 50px;
       background: linear-gradient(to right, #111111, #2c2c2c);
       font-weight: bold;
     }
 
     .top-panel-2 {
+      height: 80px;
       background: linear-gradient(to right, #00c6ff, #007aff);
       width: 100%;
     }
 
     .bottom-panel-1 {
+      height: 60px;
       background: linear-gradient(to right, #3a8dde, #2569be);
       font-style: italic;
       display: flex;
@@ -72,6 +75,7 @@
     }
 
     .bottom-panel-2 {
+      height: 140px;
       background: linear-gradient(to right, #ffe082, #f4a742);
       color: #333333;
       font-weight: bold;
@@ -84,9 +88,9 @@
     }
 
     .bottom-panel-4 {
+      height: 30px;
       background: linear-gradient(to right, #4facfe, #007aff);
       color: #000;
-      display: none;
       transition: transform 0.3s ease, margin-bottom 0.3s ease;
     }
 
@@ -218,9 +222,9 @@
     <div class="debug-panel" id="debug-panel"></div>
     <div class="game-frame">
       <div class="panel top-panel-1">WORDS with Friends 2</div>
-      <div class="panel bottom-panel-1">
+      <div class="panel top-panel-2">
         <a class="back-link" href="../../index.html">⬅</a>
-        <div class="panel top-panel-2">Player Info Panel</div>
+        <div class="panel">Player Info Panel</div>
       </div>
       <div class="game-area">
         <div class="board" id="board"></div>
