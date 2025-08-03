@@ -1,23 +1,24 @@
-// Global Game Manager - persists across pages
-window.GameManager = (function() {
+// Global Game Manager - persists across pages and includes WordManager
+window.GameManager = (function () {
   const STORAGE_KEY = 'scrabbleGameState';
-  
+
   let state = {
     currentGame: null,
     playerStats: {
       totalScore: 0,
       gamesPlayed: 0,
       bestWord: '',
-      bestScore: 0
+      bestScore: 0,
     },
     gameHistory: [],
     settings: {
       soundEnabled: true,
-      difficulty: 'normal'
-    }
+      difficulty: 'normal',
+    },
   };
 
-  // Load state from localStorage on init
+  let WordManager = null;
+
   function loadState() {
     const saved = localStorage.getItem(STORAGE_KEY);
     if (saved) {
@@ -25,17 +26,32 @@ window.GameManager = (function() {
     }
   }
 
-  // Save state to localStorage
   function saveState() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
   }
 
-  // Public API
-  return {
-    // Initialize manager
+  const manager = {
+    // Initialize GameManager and WordManager
     init() {
       console.log('GameManager initialized');
       loadState();
+
+      // Integrate WordManager
+      WordManager = window.__WordManagerModule;
+      if (WordManager) {
+        WordManager.load();
+        this.WordManager = WordManager;
+      } else {
+        console.warn('⚠️ WordManager not loaded when GameManager initialized');
+        this.WordManager = {
+          load: () => {},
+          isValidWord: () => false,
+          addWord: () => {},
+          getAllWords: () => [],
+        };
+      }
+
+      delete window.__WordManagerModule;
       return this;
     },
 
@@ -47,7 +63,7 @@ window.GameManager = (function() {
         score: 0,
         moves: [],
         board: null,
-        rack: null
+        rack: null,
       };
       saveState();
       return state.currentGame;
@@ -68,16 +84,17 @@ window.GameManager = (function() {
       if (state.currentGame) {
         state.playerStats.gamesPlayed++;
         state.playerStats.totalScore += finalScore;
+
         if (finalScore > state.playerStats.bestScore) {
           state.playerStats.bestScore = finalScore;
         }
-        
+
         state.gameHistory.push({
           ...state.currentGame,
           endTime: Date.now(),
-          finalScore
+          finalScore,
         });
-        
+
         state.currentGame = null;
         saveState();
       }
@@ -108,10 +125,20 @@ window.GameManager = (function() {
       localStorage.removeItem(STORAGE_KEY);
       state = {
         currentGame: null,
-        playerStats: { totalScore: 0, gamesPlayed: 0, bestWord: '', bestScore: 0 },
+        playerStats: {
+          totalScore: 0,
+          gamesPlayed: 0,
+          bestWord: '',
+          bestScore: 0,
+        },
         gameHistory: [],
-        settings: { soundEnabled: true, difficulty: 'normal' }
+        settings: {
+          soundEnabled: true,
+          difficulty: 'normal',
+        },
       };
-    }
+    },
   };
-})().init();
+
+  return manager.init();
+})();
