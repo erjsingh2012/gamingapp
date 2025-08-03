@@ -1,4 +1,5 @@
-// Global Game Manager - persists across pages and includes WordManager
+// 📁 public/gameManager.js
+
 window.GameManager = (function () {
   const STORAGE_KEY = 'scrabbleGameState';
 
@@ -22,7 +23,11 @@ window.GameManager = (function () {
   function loadState() {
     const saved = localStorage.getItem(STORAGE_KEY);
     if (saved) {
-      state = { ...state, ...JSON.parse(saved) };
+      try {
+        state = { ...state, ...JSON.parse(saved) };
+      } catch (e) {
+        console.warn("⚠️ Failed to parse saved game state.");
+      }
     }
   }
 
@@ -31,27 +36,25 @@ window.GameManager = (function () {
   }
 
   const manager = {
-    // Initialize GameManager and WordManager
+    // Initialize GameManager and link WordManager
     init() {
-      console.log('GameManager initialized');
+      console.log('🧠 GameManager initialized');
       loadState();
 
-      // Integrate WordManager
-      WordManager = window.__WordManagerModule;
+      WordManager = window.WordManager;
       if (WordManager) {
-        WordManager.load();
+        WordManager.init(); // Load dictionary
         this.WordManager = WordManager;
       } else {
-        console.warn('⚠️ WordManager not loaded when GameManager initialized');
+        console.warn('⚠️ WordManager not found. Falling back to dummy.');
         this.WordManager = {
-          load: () => {},
-          isValidWord: () => false,
+          init: () => {},
+          isValid: () => false,
           addWord: () => {},
           getAllWords: () => [],
         };
       }
 
-      delete window.__WordManagerModule;
       return this;
     },
 
@@ -118,6 +121,25 @@ window.GameManager = (function () {
     updateSettings(updates) {
       state.settings = { ...state.settings, ...updates };
       saveState();
+    },
+
+    // Word dictionary helpers
+    isValidWord(word) {
+      return this.WordManager.isValid(word);
+    },
+
+    addWord(word) {
+      this.WordManager.addWord(word);
+    },
+
+    getAllWords() {
+      return this.WordManager.getAllWords();
+    },
+
+    loadDictionary(path) {
+      if (this.WordManager.loadFromFile) {
+        this.WordManager.loadFromFile(path);
+      }
     },
 
     // Utility

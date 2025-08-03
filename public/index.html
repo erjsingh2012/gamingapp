@@ -1,3 +1,5 @@
+<!DOCTYPE html>
+<html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -8,12 +10,16 @@
   <script src="gameManager.js"></script>
 
   <!-- Styles -->
-  <style media="screen">
+  <style>
     html, body {
+      margin: 0;
+      padding: 0;
+      font-family: sans-serif;
       height: auto;
       min-height: 100vh;
       overflow-x: hidden;
       overflow-y: auto;
+      background: #f5f5f5;
     }
 
     .game-card {
@@ -60,15 +66,54 @@
       text-align: center;
       font-size: 13px;
     }
+
+    #dictionary-panel {
+      display: none;
+      padding: 20px;
+      max-width: 900px;
+      margin: auto;
+    }
+
+    #dictionary-words {
+      columns: 3;
+      column-gap: 20px;
+      max-height: 70vh;
+      overflow-y: auto;
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+    }
+
+    #dictionary-words div {
+      margin-bottom: 5px;
+      font-size: 14px;
+    }
+
+    #dictionary-panel button {
+      margin-top: 10px;
+      background-color: #039be5;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    #dictionary-panel h2 {
+      color: #333;
+    }
   </style>
 </head>
 
 <body>
+  <!-- Main Game Lobby UI -->
   <div id="lobby">
     <h1 style="text-align:center;">🎮 Game Lobby</h1>
-    
+
     <!-- Player Stats Section -->
-    <div id="player-stats" style="background: white; max-width: 600px; margin: 20px auto; padding: 20px; border-radius: 8px; box-shadow: 0 1px 5px rgba(0,0,0,0.15);">
+    <div id="player-stats"
+      style="background: white; max-width: 600px; margin: 20px auto; padding: 20px; border-radius: 8px; box-shadow: 0 1px 5px rgba(0,0,0,0.15);">
       <h2 style="margin: 0 0 15px; color: #039be5;">📊 Player Stats</h2>
       <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 15px;">
         <div style="text-align: center;">
@@ -89,9 +134,9 @@
         </div>
       </div>
     </div>
-    
-    <div id="games" style="display: flex; flex-wrap: wrap; justify-content: center; gap: 16px; padding: 16px;">
 
+    <!-- Game Cards -->
+    <div id="games">
       <div class="game-card">
         <h3>Words With Friends</h3>
         <p>Play the classic word puzzle game with friends.</p>
@@ -99,9 +144,9 @@
       </div>
 
       <div class="game-card">
-        <h3>Viewport Height Tester</h3>
-        <p>Test and debug mobile viewport height issues.</p>
-        <a href="pages/viewportheight.html">Open</a>
+        <h3>Dictionary Viewer</h3>
+        <p>Explore the complete word list used in your games.</p>
+        <a href="#" onclick="openDictionary(event)">Open</a>
       </div>
 
       <div class="game-card">
@@ -110,70 +155,23 @@
         <a href="pages/wordsGames/scrabble13.html">Play</a>
       </div>
 
-      <div class="game-card">
-        <h3>Sudoku</h3>
-        <p>Fill the grid with numbers without repeating.</p>
-        <a href="pages/sudoku.html">Play</a>
-      </div>
-
-      <div class="game-card">
-        <h3>2048</h3>
-        <p>Join the numbers and get to the 2048 tile.</p>
-        <a href="pages/2048.html">Play</a>
-      </div>
-
-      <div class="game-card">
-        <h3>Tic Tac Toe</h3>
-        <p>Classic X and O game for two players.</p>
-        <a href="pages/tictactoe.html">Play</a>
-      </div>
-
-      <div class="game-card">
-        <h3>Snake Game</h3>
-        <p>Eat the food, grow the snake, avoid walls.</p>
-        <a href="pages/snake.html">Play</a>
-      </div>
-
-      <div class="game-card">
-        <h3>Flappy Bird</h3>
-        <p>Tap to fly and avoid the pipes!</p>
-        <a href="pages/flappybird.html">Play</a>
-      </div>
-
-      <div class="game-card">
-        <h3>Brick Breaker</h3>
-        <p>Break all bricks with your paddle and ball.</p>
-        <a href="pages/brickbreaker.html">Play</a>
-      </div>
-
-      <div class="game-card">
-        <h3>Maze Escape</h3>
-        <p>Find your way out of a challenging maze.</p>
-        <a href="pages/maze.html">Play</a>
-      </div>
-
-      <div class="game-card">
-        <h3>Typing Speed</h3>
-        <p>Test how fast you can type with accuracy.</p>
-        <a href="pages/typing.html">Play</a>
-      </div>
-
-      <div class="game-card">
-        <h3>Math Quiz</h3>
-        <p>Sharpen your brain with quick math challenges.</p>
-        <a href="pages/mathquiz.html">Play</a>
-      </div>
-
+      <!-- Add more game cards below -->
     </div>
-
   </div>
-  <p id="load">Firebase SDK Loading&hellip;</p>
 
+  <!-- Dictionary Panel -->
+  <div id="dictionary-panel">
+    <h2>📖 Dictionary</h2>
+    <button onclick="renderDictionary()">🔄 Refresh</button>
+    <div id="dictionary-words"></div>
+    <button onclick="closeDictionary()">⬅ Back to Lobby</button>
+  </div>
+
+  <!-- Script to control stats and dictionary -->
   <script>
     document.addEventListener('DOMContentLoaded', function () {
       const loadEl = document.querySelector('#load');
-      
-      // Update player stats display
+
       function updateStatsDisplay() {
         const stats = GameManager.getStats();
         document.getElementById('total-score').textContent = stats.totalScore;
@@ -181,43 +179,27 @@
         document.getElementById('best-score').textContent = stats.bestScore;
         document.getElementById('best-word').textContent = stats.bestWord || '-';
       }
-      
-      // Update stats on page load
-      updateStatsDisplay();
-      // // 🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥
-      // // The Firebase SDK is initialized and available here!
-      //
-      // firebase.auth().onAuthStateChanged(user => { });
-      // firebase.database().ref('/path/to/ref').on('value', snapshot => { });
-      // firebase.firestore().doc('/foo/bar').get().then(() => { });
-      // firebase.functions().httpsCallable('yourFunction')().then(() => { });
-      // firebase.messaging().requestPermission().then(() => { });
-      // firebase.storage().ref('/path/to/ref').getDownloadURL().then(() => { });
-      // firebase.analytics(); // call to activate
-      // firebase.analytics().logEvent('tutorial_completed');
-      // firebase.performance(); // call to activate
-      //
-      // // 🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥
 
-      try {
-        let app = firebase.app();
-        let features = [
-          'auth',
-          'database',
-          'firestore',
-          'functions',
-          'messaging',
-          'storage',
-          'analytics',
-          'remoteConfig',
-          'performance',
-        ].filter(feature => typeof app[feature] === 'function');
-        loadEl.textContent = `Firebase SDK loaded with ${features.join(', ')}`;
-      } catch (e) {
-        console.error(e);
-        loadEl.textContent = 'Error loading the Firebase SDK, check the console.';
-      }
+      updateStatsDisplay();
     });
+
+    function openDictionary(event) {
+      event.preventDefault();
+      renderDictionary();
+      document.getElementById('dictionary-panel').style.display = 'block';
+      document.getElementById('lobby').style.display = 'none';
+    }
+
+    function closeDictionary() {
+      document.getElementById('dictionary-panel').style.display = 'none';
+      document.getElementById('lobby').style.display = 'block';
+    }
+
+    function renderDictionary() {
+      const words = GameManager.WordManager.getAllWords();
+      const container = document.getElementById('dictionary-words');
+      container.innerHTML = words.map(w => `<div>${w}</div>`).join('');
+    }
   </script>
 </body>
 </html>
