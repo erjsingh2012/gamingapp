@@ -99,9 +99,19 @@ const populateBoard = () => {
   initBoardTileClick();
 };
 
-// Initialize game
+// Initialize game with GameManager
+let gameScore = 0;
+GameManager.startGame('scrabble');
+
 populateBoard();
 populateRack(drawTiles(7));
+
+// Save initial game state
+GameManager.saveGameState({
+  board: boardData,
+  rack: drawTiles(7),
+  score: gameScore
+});
 
 let draggedTile = null;
 let dragOffsetX = 0;
