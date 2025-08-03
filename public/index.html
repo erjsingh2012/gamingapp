@@ -173,17 +173,35 @@
       break-inside: avoid;
     }
 
-    /* Profile Panel */
     #profile-panel {
-      right: -100%;
-      box-shadow: -2px 0 5px rgba(0, 0, 0, 0.2);
-    }
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: #f9f9f9;
+  z-index: 1001;
+  padding: 16px;
+  box-sizing: border-box;
+  overflow-y: auto;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+  opacity: 0;
+}
 
     #profile-panel.active {
-      right: 0;
       pointer-events: auto;
       opacity: 1;
     }
+
+    @media (min-width: 431px) {
+  #profile-panel {
+    left: 50%;
+    transform: translateX(-50%);
+    width: 430px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+  }
+}
 
     .profile-header {
       display: flex;
@@ -491,7 +509,7 @@
       setActiveNav('Leaderboard');
       alert("🏆 Leaderboard page coming soon...");
     }
-
   </script>
 </body>
+
 </html>
