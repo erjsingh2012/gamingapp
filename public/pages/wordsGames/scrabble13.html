@@ -60,6 +60,7 @@
 
     .top-panel-2 {
       background: linear-gradient(to right, #00c6ff, #007aff);
+      width: 100%;
     }
 
     .bottom-panel-1 {
@@ -194,7 +195,8 @@
 
     .back-link {
       display: inline-block;
-      margin-bottom: 16px;
+      width: 5%;
+      height: 80%;
       background: #039be5;
       color: white;
       padding: 10px 16px;
@@ -217,12 +219,15 @@
     <div class="debug-panel" id="debug-panel"></div>
     <div class="game-frame">
       <div class="panel top-panel-1">WORDS with Friends 2</div>
-      <div class="panel top-panel-2">Player Info Panel</div>
-      <a class="back-link" href="../../index.html">⬅ Back to Lobby</a>
+      <div class="panel bottom-panel-1">
+        <a class="back-link" href="../../index.html">⬅</a>
+        <div class="panel top-panel-2">Player Info Panel</div>
+      </div>
       <div class="game-area">
         <div class="board" id="board"></div>
       </div>
       <div class="panel bottom-panel-1">
+        
         <span>Practice played FRIT for 14 points</span>
       </div>
       <div class="panel bottom-panel-2" id="rack"></div>
