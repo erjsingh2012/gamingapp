@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Welcome to Game Lobby</title>
+  <title>🎮 Game Lobby</title>
 
   <!-- Game Managers -->
   <script src="wordManager.js"></script>
@@ -13,195 +13,243 @@
   <style>
     html, body {
       margin: 0;
+      padding: 0;
       font-family: sans-serif;
-      background: #f4f4f4;
+      background: #000;
+      color: #111;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background: linear-gradient(to right, #000 50%, #007BFF 50%);
+      z-index: -1;
+    }
+
+    #app {
+      max-width: 430px;
+      min-height: 100vh;
+      margin: 0 auto;
+      background: #f9f9f9;
+      padding: 16px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.3);
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+      font-size: 24px;
+    }
+
+    .stats {
+      background: white;
+      border-radius: 8px;
+      padding: 16px;
+      box-shadow: 0 1px 5px rgba(0, 0, 0, 0.15);
+      margin-bottom: 24px;
+    }
+
+    .stats h2 {
+      font-size: 18px;
+      color: #007BFF;
+      margin-bottom: 12px;
+    }
+
+    .stat-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      text-align: center;
+    }
+
+    .stat .value {
+      font-size: 20px;
+      font-weight: bold;
+    }
+
+    .games-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
     }
 
     .game-card {
       background: white;
-      width: 250px;
-      padding: 16px;
       border-radius: 8px;
-      box-shadow: 0 1px 5px rgba(0, 0, 0, 0.15);
+      padding: 12px;
+      box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1);
       display: flex;
       flex-direction: column;
       justify-content: space-between;
+      height: 120px;
     }
 
     .game-card h3 {
-      margin: 0 0 8px;
+      font-size: 15px;
+      margin: 0 0 4px;
     }
 
     .game-card p {
-      font-size: 14px;
-      margin-bottom: 12px;
+      font-size: 13px;
+      margin: 0 0 8px;
+      color: #555;
     }
 
     .game-card a {
-      background-color: #039be5;
-      color: white;
-      text-align: center;
-      padding: 12px;
       text-decoration: none;
+      background: #007BFF;
+      color: white;
+      padding: 6px;
+      text-align: center;
       border-radius: 4px;
+      font-size: 13px;
       text-transform: uppercase;
     }
 
-    #games {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 16px;
-      padding: 16px;
+    #load {
+      font-size: 12px;
+      color: #888;
+      text-align: center;
+      margin-top: 20px;
     }
 
-    #player-stats {
-      background: white;
-      max-width: 600px;
-      margin: 20px auto;
-      padding: 20px;
-      border-radius: 8px;
-      box-shadow: 0 1px 5px rgba(0,0,0,0.15);
-    }
-
+    /* Dictionary Panel */
     #dictionary-panel {
-      display: none;
-      padding: 20px;
-      max-width: 900px;
-      margin: 20px auto;
+      position: absolute;
+      top: 0;
+      left: 100%;
+      width: 100%;
+      height: 100%;
       background: white;
-      border-radius: 8px;
-      box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1);
-    }
-
-    #dictionary-words-container {
-      height: 400px;
+      transition: left 0.3s ease;
+      z-index: 10;
+      padding: 16px;
       overflow-y: auto;
-      border: 1px solid #ddd;
-      border-radius: 6px;
-      background: #fafafa;
-      padding: 12px;
     }
 
-    #dictionary-words {
-      columns: 3;
-      column-gap: 20px;
+    #dictionary-panel.active {
+      left: 0;
     }
 
-    #dictionary-words div {
-      break-inside: avoid;
-      padding: 2px 0;
-      font-size: 14px;
+    #dictionary-panel h2 {
+      margin-top: 0;
     }
 
     #dictionary-panel button {
-      margin: 10px 0;
-      padding: 8px 12px;
-      border: none;
-      background: #039be5;
+      background: #007BFF;
       color: white;
+      border: none;
+      padding: 8px 12px;
       border-radius: 4px;
-      cursor: pointer;
+      margin-bottom: 12px;
     }
 
-    #load {
-      color: rgba(0, 0, 0, 0.4);
-      text-align: center;
-      font-size: 13px;
+    #dictionary-words {
+      columns: 2;
+      column-gap: 16px;
+    }
+
+    #dictionary-words div {
+      padding: 2px 0;
+      font-size: 14px;
+      break-inside: avoid;
+    }
+
+    @media (min-width: 768px) {
+      #app {
+        margin-top: 40px;
+        border-radius: 12px;
+      }
+
+      #dictionary-words {
+        columns: 3;
+      }
     }
   </style>
 </head>
-
 <body>
-  <div id="lobby">
-    <h1 style="text-align:center;">🎮 Game Lobby</h1>
+  <div id="app">
+    <h1>🎮 Game Lobby</h1>
 
-    <div id="player-stats">
-      <h2 style="margin-bottom: 15px; color: #039be5;">📊 Player Stats</h2>
-      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 15px;">
-        <div style="text-align: center;">
-          <div style="font-size: 24px; font-weight: bold; color: #ffa100;" id="total-score">0</div>
-          <div style="font-size: 12px; color: #666;">Total Score</div>
+    <div class="stats">
+      <h2>📊 Player Stats</h2>
+      <div class="stat-grid">
+        <div class="stat">
+          <div class="value" id="total-score">0</div>
+          <div>Total Score</div>
         </div>
-        <div style="text-align: center;">
-          <div style="font-size: 24px; font-weight: bold; color: #4caf50;" id="games-played">0</div>
-          <div style="font-size: 12px; color: #666;">Games Played</div>
+        <div class="stat">
+          <div class="value" id="games-played">0</div>
+          <div>Games Played</div>
         </div>
-        <div style="text-align: center;">
-          <div style="font-size: 24px; font-weight: bold; color: #e91e63;" id="best-score">0</div>
-          <div style="font-size: 12px; color: #666;">Best Score</div>
+        <div class="stat">
+          <div class="value" id="best-score">0</div>
+          <div>Best Score</div>
         </div>
-        <div style="text-align: center;">
-          <div style="font-size: 16px; font-weight: bold; color: #9c27b0;" id="best-word">-</div>
-          <div style="font-size: 12px; color: #666;">Best Word</div>
+        <div class="stat">
+          <div class="value" id="best-word">-</div>
+          <div>Best Word</div>
         </div>
       </div>
     </div>
 
-    <div id="games">
+    <div class="games-grid">
+      <div class="game-card">
+        <h3>Your Profile</h3>
+        <p>See your stats and game records.</p>
+        <a href="#" onclick="alert('TODO: Implement Profile')">Open</a>
+      </div>
       <div class="game-card">
         <h3>Words With Friends</h3>
-        <p>Play the classic word puzzle game with friends.</p>
+        <p>Play the classic word puzzle game.</p>
         <a href="pages/wordswithfriends.html">Play</a>
       </div>
-
       <div class="game-card">
         <h3>Dictionary Viewer</h3>
-        <p>Explore the complete word list used in your games.</p>
-        <a href="#" onclick="openDictionary(event)">Open</a>
+        <p>See the complete game word list.</p>
+        <a href="#" onclick="openDictionary()">Open</a>
       </div>
-
       <div class="game-card">
         <h3>Scrabble13</h3>
-        <p>Play a 13×13 version of Scrabble.</p>
+        <p>13×13 version of classic Scrabble.</p>
         <a href="pages/wordsGames/scrabble13.html">Play</a>
       </div>
     </div>
-  </div>
 
-  <div id="dictionary-panel">
-    <h2>📖 Dictionary</h2>
-    <button onclick="renderDictionary()">Refresh</button>
-    <div id="dictionary-words-container">
+    <div id="load">Firebase SDK Loading…</div>
+
+    <!-- Dictionary Panel -->
+    <div id="dictionary-panel">
+      <h2>📖 Dictionary</h2>
+      <button onclick="closeDictionary()">Close</button>
       <div id="dictionary-words"></div>
     </div>
-    <button onclick="closeDictionary()">Close</button>
   </div>
-
-  <p id="load">Firebase SDK Loading&hellip;</p>
 
   <script>
     document.addEventListener('DOMContentLoaded', function () {
-      const loadEl = document.querySelector('#load');
-
-      function updateStatsDisplay() {
-        const stats = GameManager.getStats();
-        document.getElementById('total-score').textContent = stats.totalScore;
-        document.getElementById('games-played').textContent = stats.gamesPlayed;
-        document.getElementById('best-score').textContent = stats.bestScore;
-        document.getElementById('best-word').textContent = stats.bestWord || '-';
-      }
-
-      updateStatsDisplay();
+      const stats = GameManager.getStats();
+      document.getElementById('total-score').textContent = stats.totalScore;
+      document.getElementById('games-played').textContent = stats.gamesPlayed;
+      document.getElementById('best-score').textContent = stats.bestScore;
+      document.getElementById('best-word').textContent = stats.bestWord || '-';
     });
 
-    function openDictionary(event) {
-      event.preventDefault();
-      renderDictionary();
-      document.getElementById('dictionary-panel').style.display = 'block';
-      document.getElementById('lobby').style.display = 'none';
+    function openDictionary() {
+      const panel = document.getElementById('dictionary-panel');
+      const container = document.getElementById('dictionary-words');
+      const words = GameManager.WordManager.getAllWords();
+
+      container.innerHTML = words.map(w => `<div>${w}</div>`).join('');
+      panel.classList.add('active');
     }
 
     function closeDictionary() {
-      document.getElementById('dictionary-panel').style.display = 'none';
-      document.getElementById('lobby').style.display = 'block';
-    }
-
-    function renderDictionary() {
-      const words = GameManager.WordManager.getAllWords();
-      console.log('Rendering dictionary with words:', words.length);
-      const container = document.getElementById('dictionary-words');
-      container.innerHTML = words.map(w => `<div>${w}</div>`).join('');
+      document.getElementById('dictionary-panel').classList.remove('active');
     }
   </script>
 </body>
