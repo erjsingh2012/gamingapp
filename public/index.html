@@ -174,20 +174,20 @@
     }
 
     #profile-panel {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: #f9f9f9;
-  z-index: 1001;
-  padding: 16px;
-  box-sizing: border-box;
-  overflow-y: auto;
-  transition: opacity 0.3s ease;
-  pointer-events: none;
-  opacity: 0;
-}
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: #f9f9f9;
+      z-index: 1001;
+      padding: 16px;
+      box-sizing: border-box;
+      overflow-y: auto;
+      transition: opacity 0.3s ease;
+      pointer-events: none;
+      opacity: 0;
+    }
 
     #profile-panel.active {
       pointer-events: auto;
@@ -195,13 +195,13 @@
     }
 
     @media (min-width: 431px) {
-  #profile-panel {
-    left: 50%;
-    transform: translateX(-50%);
-    width: 430px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
-  }
-}
+      #profile-panel {
+        left: 50%;
+        transform: translateX(-50%);
+        width: 430px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+      }
+    }
 
     .profile-header {
       display: flex;
@@ -333,6 +333,64 @@
       outline: none;
       color: #007BFF;
     }
+
+    #leaderboard-panel {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      max-width: 430px;
+      margin: 0 auto;
+      background: #ffffff;
+      z-index: 1002;
+      padding: 16px;
+      box-sizing: border-box;
+      overflow-y: auto;
+      transition: opacity 0.3s ease;
+      pointer-events: none;
+      opacity: 0;
+    }
+
+    #leaderboard-panel.active {
+      pointer-events: auto;
+      opacity: 1;
+    }
+
+    .leaderboard-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .leaderboard-header h2 {
+      margin: 0;
+    }
+
+    .leaderboard-header button {
+      background: #007BFF;
+      color: white;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 4px;
+      font-size: 14px;
+    }
+
+    .leaderboard-content {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .leaderboard-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 12px;
+      background: #f1f1f1;
+      border-radius: 6px;
+      font-size: 14px;
+    }
   </style>
 </head>
 
@@ -414,6 +472,16 @@
         <div><strong>Games Played:</strong> <span id="profile-games-played">0</span></div>
         <div><strong>Best Score:</strong> <span id="profile-best-score">0</span></div>
         <div><strong>Best Word:</strong> <span id="profile-best-word">-</span></div>
+      </div>
+    </div>
+    <!-- Leaderboard Panel -->
+    <div id="leaderboard-panel">
+      <div class="leaderboard-header">
+        <h2>🏆 Leaderboard</h2>
+        <button onclick="closeLeaderboard()">← Back</button>
+      </div>
+      <div class="leaderboard-content" id="leaderboard-list">
+        <!-- Dummy players will be inserted by JS -->
       </div>
     </div>
     <!-- Bottom Navigation -->
@@ -503,12 +571,32 @@
       setActiveNav('Home');
       document.getElementById('profile-panel')?.classList.remove('active');
       document.getElementById('dictionary-panel')?.classList.remove('active');
+      document.getElementById('leaderboard-panel')?.classList.remove('active');
     }
 
     function openLeaderboard() {
       setActiveNav('Leaderboard');
-      alert("🏆 Leaderboard page coming soon...");
+
+      const panel = document.getElementById('leaderboard-panel');
+      const list = document.getElementById('leaderboard-list');
+
+      // Populate dummy data if not already added
+      if (list.children.length === 0) {
+        for (let i = 1; i <= 100; i++) {
+          const item = document.createElement('div');
+          item.className = 'leaderboard-item';
+          item.innerHTML = `<span>#${i} Player ${i}</span><span>${Math.floor(Math.random() * 10000)} pts</span>`;
+          list.appendChild(item);
+        }
+      }
+
+      panel.classList.add('active');
     }
+
+    function closeLeaderboard() {
+      document.getElementById('leaderboard-panel')?.classList.remove('active');
+    }
+
   </script>
 </body>
 
