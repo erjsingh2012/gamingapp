@@ -334,62 +334,86 @@
       color: #007BFF;
     }
 
-    #leaderboard-panel {
+    .leaderboard-panel {
       position: absolute;
-      top: 0;
+      top: 10%;
       left: 0;
       width: 100%;
-      height: 100%;
-      max-width: 430px;
-      margin: 0 auto;
-      background: #ffffff;
-      z-index: 1002;
+      height: 80%;
+      background: #f9f9f9;
+      z-index: 1001;
       padding: 16px;
       box-sizing: border-box;
-      overflow-y: auto;
-      transition: opacity 0.3s ease;
-      pointer-events: none;
-      opacity: 0;
-    }
-
-    #leaderboard-panel.active {
-      pointer-events: auto;
-      opacity: 1;
-    }
-
-    .leaderboard-header {
+      overflow: hidden;
       display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 16px;
+      flex-direction: column;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
     }
 
-    .leaderboard-header h2 {
-      margin: 0;
+    .leaderboard-panel.active {
+      opacity: 1;
+      pointer-events: auto;
     }
 
-    .leaderboard-header button {
+
+    .leaderboard-panel h2 {
+      margin-top: 0;
+      font-size: 20px;
+      text-align: center;
+    }
+
+    .leaderboard-close {
+      margin-top: 8px;
       background: #007BFF;
       color: white;
       border: none;
       padding: 8px 12px;
       border-radius: 4px;
       font-size: 14px;
+      width: 100%;
     }
 
-    .leaderboard-content {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
+    .leaderboard-list {
+      flex: 1;
+      overflow-y: auto;
+      border-top: 1px solid #ccc;
+      margin: 12px 0;
+      padding: 0 4px;
+      height: calc(10 * 48px);
+      /* Show only 10 rows (~48px height each) */
     }
 
     .leaderboard-item {
       display: flex;
       justify-content: space-between;
-      padding: 8px 12px;
-      background: #f1f1f1;
-      border-radius: 6px;
-      font-size: 14px;
+      padding: 12px 8px;
+      border-bottom: 1px solid #eee;
+      font-size: 15px;
+      height: 48px;
+      box-sizing: border-box;
+    }
+
+    .leaderboard-item.you {
+      font-weight: bold;
+      background: #e3f2fd;
+      position: relative;
+      transition: background 0.3s;
+    }
+
+    .leaderboard-item.you.stick-top {
+      position: sticky;
+      top: 0;
+      background: #90caf9;
+      z-index: 1;
+    }
+
+    .leaderboard-item.you.stick-bottom {
+      position: sticky;
+      bottom: 0;
+      background: #64b5f6;
+      z-index: 1;
     }
   </style>
 </head>
@@ -475,14 +499,10 @@
       </div>
     </div>
     <!-- Leaderboard Panel -->
-    <div id="leaderboard-panel">
-      <div class="leaderboard-header">
-        <h2>🏆 Leaderboard</h2>
-        <button onclick="closeLeaderboard()">← Back</button>
-      </div>
-      <div class="leaderboard-content" id="leaderboard-list">
-        <!-- Dummy players will be inserted by JS -->
-      </div>
+    <div id="leaderboard-panel" class="leaderboard-panel">
+      <h2>🏆 Leaderboard</h2>
+      <div id="leaderboard-list" class="leaderboard-list"></div>
+      <button class="leaderboard-close" onclick="closeLeaderboard()">← Back</button>
     </div>
     <!-- Bottom Navigation -->
     <nav class="bottom-nav">
@@ -574,27 +594,54 @@
       document.getElementById('leaderboard-panel')?.classList.remove('active');
     }
 
+
     function openLeaderboard() {
       setActiveNav('Leaderboard');
-
       const panel = document.getElementById('leaderboard-panel');
       const list = document.getElementById('leaderboard-list');
+      panel.classList.add('active');
+      list.innerHTML = "";
 
-      // Populate dummy data if not already added
-      if (list.children.length === 0) {
-        for (let i = 1; i <= 100; i++) {
-          const item = document.createElement('div');
-          item.className = 'leaderboard-item';
-          item.innerHTML = `<span>#${i} Player ${i}</span><span>${Math.floor(Math.random() * 10000)} pts</span>`;
-          list.appendChild(item);
+      const total = 40;
+      const userRank = Math.floor(Math.random() * total) + 1;
+
+      for (let i = 1; i <= total; i++) {
+        const div = document.createElement('div');
+        div.className = 'leaderboard-item';
+        const score = Math.floor(Math.random() * 10000 + 1000);
+
+        if (i === userRank) {
+          div.classList.add('you');
+          div.innerHTML = `<span>#${i} 👤 You</span><span>${score} pts</span>`;
+        } else {
+          div.innerHTML = `<span>#${i} Player ${i}</span><span>${score} pts</span>`;
         }
+
+        list.appendChild(div);
       }
 
-      panel.classList.add('active');
+      const youItem = document.querySelector('.leaderboard-item.you');
+      if (youItem) {
+        youItem.scrollIntoView({ behavior: 'auto', block: 'center' });
+      }
+
+      list.addEventListener('scroll', () => {
+        const you = document.querySelector('.leaderboard-item.you');
+        const rect = you.getBoundingClientRect();
+        const container = list.getBoundingClientRect();
+
+        you.classList.remove('stick-top', 'stick-bottom');
+
+        if (rect.top <= container.top + 1) {
+          you.classList.add('stick-top');
+        } else if (rect.bottom >= container.bottom - 1) {
+          you.classList.add('stick-bottom');
+        }
+      });
     }
 
     function closeLeaderboard() {
-      document.getElementById('leaderboard-panel')?.classList.remove('active');
+      document.getElementById('leaderboard-panel').classList.remove('active');
     }
 
   </script>
