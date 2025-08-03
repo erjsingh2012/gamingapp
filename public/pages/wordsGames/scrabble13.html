@@ -27,7 +27,7 @@
 
     .scale-wrapper {
       width: 100%;
-      max-width: 561px;
+      max-width: 600px;
       height: 100vh;
       position: relative;
       box-shadow: 0 0 20px rgba(0, 0, 0, 0.4);
@@ -100,18 +100,19 @@
       justify-content: center;
       align-items: center;
       padding: 10px 0;
+      width: 100%;
     }
 
     .board {
       display: grid;
       grid-template-columns: repeat(11, 1fr);
       gap: 1px;
-      background: #e0e0e0;
-      padding: 10px 16px;
       width: 100%;
       max-width: 500px;
       aspect-ratio: 1 / 1;
       border-radius: 14px;
+      margin: 0 auto;
+      /* Center board horizontally */
     }
 
     .tile {
@@ -127,10 +128,12 @@
       user-select: none;
       text-transform: uppercase;
       border-radius: 10px;
-      box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.2), 0 2px 4px rgba(0, 0, 0, 0.2);
+      box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.2),
+        0 2px 4px rgba(0, 0, 0, 0.2);
       border: 1px solid #ccc;
       transition: transform 0.1s ease;
     }
+
 
     .TW {
       background: #c62828;
@@ -207,7 +210,6 @@
       font-weight: bold;
       background: linear-gradient(135deg, #4dcb57, #61c917) !important;
       color: #000 !important;
-      border: 2px solid #ff9800 !important;
       z-index: 1;
     }
   </style>
