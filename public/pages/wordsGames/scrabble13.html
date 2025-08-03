@@ -6,7 +6,6 @@
   <meta name="viewport"
     content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <style>
-  
     html,
     body {
       margin: 0;
@@ -227,7 +226,7 @@
         <div class="board" id="board"></div>
       </div>
       <div class="panel bottom-panel-1">
-        
+
         <span>Practice played FRIT for 14 points</span>
       </div>
       <div class="panel bottom-panel-2" id="rack"></div>
@@ -295,6 +294,29 @@
           board.appendChild(tile);
         });
       });
+      const initBoardTileClick = () => {
+        document.getElementById('board').addEventListener('click', (e) => {
+          const tile = e.target;
+          if (!tile.classList.contains('placed-tile')) return;
+
+          // Try to find an empty placeholder in rack
+          const rackSpans = [...document.querySelectorAll('#rack span')];
+          const emptySpot = rackSpans.find(span => span.dataset.empty === 'true');
+
+          if (emptySpot) {
+            emptySpot.textContent = tile.dataset.letter;
+            emptySpot.classList.remove('rack-placeholder');
+            delete emptySpot.dataset.empty;
+
+            // Clear the board tile
+            const cellText = tile.dataset.originalCell || '';  // fallback to empty
+            tile.textContent = cellText;
+            tile.classList.remove('placed-tile');
+            delete tile.dataset.letter;
+          }
+        });
+      };
+      initBoardTileClick();
     };
 
     // Initialize game
