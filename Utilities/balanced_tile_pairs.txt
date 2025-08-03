@@ -1,0 +1,40 @@
+
+Pair 1:
+  P1: ybnawgs | Words: any, any, any, bag, ban, ban, bay, gas, gay, say | Score: 83
+  P2: naicvts | Words: act, act, can, can, cast, cast, cat, its, saint, scan | Score: 86
+
+Pair 2:
+  P1: lcbeaya | Words: able, bay, bye, cable, lab, lay | Score: 42
+  P2: rigeoho | Words: ego, her, her, hero, hire, hire | Score: 37
+
+Pair 3:
+  P1: ojgfloz | Words: fool, golf, log, log, logo | Score: 28
+  P2: qarzreo | Words: ear, era, rare, rear, rear, zero | Score: 31
+
+Pair 4:
+  P1: ihyolet | Words: hey, hit, hit, hole, holy, hot, hotel, let, lie, lie | Score: 125
+  P2: nsotaci | Words: act, act, action, can, can, casino, cast, cast, cat, coast | Score: 126
+
+Pair 5:
+  P1: aeigtgo | Words: age, age, ago, eat, egg, ego, gate, get, gig, tag | Score: 58
+  P2: gdasiov | Words: ago, aid, aid, aids, avoid, dig, dog, gas, god, sad | Score: 62
+
+Pair 6:
+  P1: aovogve | Words: age, age, ago, ego | Score: 16
+  P2: riufzei | Words: fire, fire, fur | Score: 20
+
+Pair 7:
+  P1: setyuly | Words: let, set, set, style, sue, use, use, yes, yet, yet | Score: 44
+  P2: ustwgdo | Words: dog, dot, duo, dust, god, gut, out, out, two | Score: 39
+
+Pair 8:
+  P1: eenpelo | Words: one, one, one, open, open, pen, pole | Score: 32
+  P2: areoees | Words: ear, ease, ease, era, rose, sea, see, soar | Score: 28
+
+Pair 9:
+  P1: ksmivoz | Words: ski, ski, ski | Score: 21
+  P2: nnfgxum | Words: fun, fun, gun | Score: 16
+
+Pair 10:
+  P1: eailxof | Words: fail, file, file, fix, fix, leaf, lie, lie, lie, life | Score: 73
+  P2: tlirego | Words: ego, get, girl, leg, let, lie, lie, lie, litre, log | Score: 75
