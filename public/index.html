@@ -20,6 +20,8 @@
       background: #000;
       color: #111;
       overflow-x: hidden;
+      padding-bottom: 64px;
+      /* Space for bottom nav */
     }
 
     body::before {
@@ -36,6 +38,8 @@
       margin: 0 auto;
       background: #f9f9f9;
       padding: 16px;
+      padding-bottom: 80px;
+      /* space for bottom nav */
       box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
       overflow-x: hidden;
       position: relative;
@@ -120,21 +124,29 @@
     }
 
     /* Dictionary Panel */
-    #dictionary-panel {
+    #dictionary-panel,
+    #profile-panel {
       position: absolute;
       top: 0;
-      left: 100%;
       width: 100%;
       height: 100%;
       background: white;
-      transition: left 0.3s ease;
-      z-index: 10;
+      z-index: 11;
       padding: 16px;
       overflow-y: auto;
+      transition: all 0.3s ease;
+      pointer-events: none;
+      opacity: 0;
+    }
+
+    #dictionary-panel {
+      left: 100%;
     }
 
     #dictionary-panel.active {
       left: 0;
+      pointer-events: auto;
+      opacity: 1;
     }
 
     #dictionary-panel h2 {
@@ -161,36 +173,17 @@
       break-inside: avoid;
     }
 
-    @media (min-width: 768px) {
-      #app {
-        margin-top: 40px;
-        border-radius: 12px;
-      }
-
-      #dictionary-words {
-        columns: 3;
-      }
-    }
-
+    /* Profile Panel */
     #profile-panel {
-      position: absolute;
-      top: 0;
       right: -100%;
-      width: 100%;
-      height: 100%;
-      background: #fff;
-      z-index: 11;
-      padding: 16px;
-      box-sizing: border-box;
-      overflow-y: auto;
-      transition: right 0.3s ease;
       box-shadow: -2px 0 5px rgba(0, 0, 0, 0.2);
     }
 
     #profile-panel.active {
       right: 0;
+      pointer-events: auto;
+      opacity: 1;
     }
-
 
     .profile-header {
       display: flex;
@@ -219,9 +212,10 @@
       font-size: 16px;
     }
 
+    /* Carousel */
     .carousel-wrapper {
       overflow: hidden;
-      padding: 0 16px;
+      padding: 0;
       margin: 24px 0;
     }
 
@@ -232,7 +226,7 @@
       scroll-behavior: smooth;
       -webkit-overflow-scrolling: touch;
       gap: 16px;
-      padding-bottom: 8px;
+      padding: 0 16px 8px;
     }
 
     .carousel::-webkit-scrollbar {
@@ -240,8 +234,7 @@
     }
 
     .carousel-item {
-      flex: 0 0 66%;
-      /* 1 full + 0.5 + 0.5 panels on each side */
+      flex: 0 0 80%;
       scroll-snap-align: center;
       background: white;
       border-radius: 12px;
@@ -251,6 +244,76 @@
       font-size: 18px;
       font-weight: bold;
       transition: transform 0.3s;
+    }
+
+    @media (min-width: 768px) {
+      #app {
+        margin-top: 40px;
+        border-radius: 12px;
+      }
+
+      #dictionary-words {
+        columns: 3;
+      }
+
+      .carousel-item {
+        flex: 0 0 60%;
+        max-width: 60%;
+      }
+    }
+
+    /* Bottom Navigation */
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100%;
+      max-width: 430px;
+      height: 64px;
+      background: linear-gradient(to right, #007BFF, #339CFF, #66BFFF);
+      border-top: 1px solid #ccc;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      z-index: 1000;
+      box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);
+      border-top-left-radius: 12px;
+      border-top-right-radius: 12px;
+    }
+
+    .nav-btn {
+      flex: 1;
+      background: none;
+      border: none;
+      padding: 4px 0;
+      font-size: 14px;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      transition: color 0.2s;
+    }
+
+
+
+    .nav-btn .icon {
+      font-size: 20px;
+      margin-bottom: 2px;
+    }
+
+    .nav-btn .label {
+      font-size: 11px;
+    }
+
+    .nav-btn.active {
+      color: #FFD700;
+      /* Highlight active tab with gold */
+    }
+
+    .nav-btn:focus {
+      outline: none;
+      color: #007BFF;
     }
   </style>
 </head>
@@ -335,6 +398,21 @@
         <div><strong>Best Word:</strong> <span id="profile-best-word">-</span></div>
       </div>
     </div>
+    <!-- Bottom Navigation -->
+    <nav class="bottom-nav">
+      <button class="nav-btn" onclick="openLeaderboard()">
+        <span class="icon">🏆</span>
+        <span class="label">Leaderboard</span>
+      </button>
+      <button class="nav-btn active" onclick="goHome()">
+        <span class="icon">🏠</span>
+        <span class="label">Home</span>
+      </button>
+      <button class="nav-btn" onclick="openProfile()">
+        <span class="icon">👤</span>
+        <span class="label">Profile</span>
+      </button>
+    </nav>
   </div>
   <script>
     document.addEventListener('DOMContentLoaded', function () {
@@ -384,8 +462,36 @@
     // Optional: center the 3rd panel on load
     window.addEventListener('DOMContentLoaded', () => {
       const items = document.querySelectorAll('.carousel-item');
-      if (items[2]) items[2].scrollIntoView({ behavior: 'instant', inline: 'center' });
+      if (items[2]) items[2].scrollIntoView({ behavior: 'auto', inline: 'center' });
     });
+    function setActiveNav(label) {
+      document.querySelectorAll('.nav-btn').forEach(btn => {
+        btn.classList.remove('active');
+      });
+
+      const target = Array.from(document.querySelectorAll('.nav-btn'))
+        .find(btn => btn.innerText.toLowerCase().includes(label.toLowerCase()));
+
+      if (target) target.classList.add('active');
+    }
+
+    // Usage:
+    function openProfile() {
+      setActiveNav('Profile');
+      document.getElementById('profile-panel').classList.add('active');
+    }
+
+    function goHome() {
+      setActiveNav('Home');
+      document.getElementById('profile-panel')?.classList.remove('active');
+      document.getElementById('dictionary-panel')?.classList.remove('active');
+    }
+
+    function openLeaderboard() {
+      setActiveNav('Leaderboard');
+      alert("🏆 Leaderboard page coming soon...");
+    }
+
   </script>
 </body>
 </html>
