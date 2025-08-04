@@ -1,17 +1,21 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <title>Scrabble Canvas 11x11</title>
   <meta name="viewport"
     content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
   <style>
-    html, body {
+    html,
+    body {
       margin: 0;
       padding: 0;
       height: 100%;
-      font-family: sans-serif;
-      background: #f0f0f0;
+      font-family: 'Segoe UI', sans-serif;
+      background: #f9f9f9;
+      user-select: none;
+      touch-action: manipulation;
     }
 
     .scale-wrapper {
@@ -20,7 +24,7 @@
       height: 100%;
       display: flex;
       flex-direction: column;
-      background: white;
+      background: #ffffff;
     }
 
     .debug-panel {
@@ -37,16 +41,20 @@
     .panel {
       padding: 10px;
       border-bottom: 1px solid #ccc;
+      box-sizing: border-box;
     }
 
     .top-panel-1 {
-      background: #333;
-      color: white;
+      background: #21374b;
+      color: #ffffff;
       text-align: center;
+      font-weight: bold;
+      font-size: 18px;
+      padding: 12px;
     }
 
     .top-panel-2 {
-      background: #f5f5f5;
+      background: #e0ecff;
       display: flex;
       align-items: center;
       gap: 10px;
@@ -54,7 +62,8 @@
 
     .back-link {
       text-decoration: none;
-      font-size: 18px;
+      font-size: 20px;
+      color: #21374b;
     }
 
     .game-area {
@@ -62,12 +71,17 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      background: #e9e9e9;
+      background: #f1f5f9;
+      padding: 8px;
     }
 
     .board canvas {
       width: 100%;
       height: auto;
+      max-width: 440px;
+      background: #fff;
+      border: 2px solid #ccc;
+      border-radius: 6px;
       touch-action: none;
     }
 
@@ -75,7 +89,10 @@
     .bottom-panel-2,
     .bottom-panel-3,
     .bottom-panel-4 {
-      background: #f5f5f5;
+      background: #f4f7fb;
+      padding: 10px;
+      box-sizing: border-box;
+      font-size: 14px;
     }
 
     #rack {
@@ -83,25 +100,43 @@
       justify-content: center;
       padding: 10px;
       gap: 8px;
+      min-height: 44px;
+      background: #f9f9f9;
     }
 
     .tile {
       width: 40px;
       height: 40px;
-      background: #f0e5d8;
-      border: 2px solid #444;
-      font-size: 24px;
+      background: #ffeccc;
+      /* Warm tile */
+      border: 2px solid #d3b27b;
+      font-size: 22px;
       font-weight: bold;
       color: #222;
       display: flex;
       align-items: center;
       justify-content: center;
-      border-radius: 4px;
+      border-radius: 6px;
       cursor: grab;
       user-select: none;
+      touch-action: none;
+      transition: transform 0.2s;
+    }
+
+    .tile:active {
+      transform: scale(1.2);
+      cursor: grabbing;
+    }
+
+    .empty-tile {
+      pointer-events: none;
+      visibility: hidden;
+      background: transparent;
+      border: none;
     }
   </style>
 </head>
+
 <body>
   <div class="scale-wrapper" id="scale-wrapper">
     <div class="debug-panel" id="debug-panel"></div>
@@ -160,28 +195,33 @@
         tile.draggable = true;
         tile.id = `tile-${Date.now()}-${i}`;
 
+        // Desktop Drag
         tile.addEventListener('dragstart', (e) => {
           draggingTile = { letter, id: tile.id };
           e.dataTransfer.setData('text/plain', JSON.stringify(draggingTile));
         });
 
+        enableTouchDrag(tile); // Mobile drag
         rackPanel.appendChild(tile);
       }
     }
 
     function drawBoard() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-
       for (let row = 0; row < GRID_SIZE; row++) {
         for (let col = 0; col < GRID_SIZE; col++) {
           const x = col * CELL_SIZE;
           const y = row * CELL_SIZE;
           const key = `${row},${col}`;
 
-          ctx.fillStyle = bonusTiles[key] === 'TW' ? '#ffcccc' :
-                          bonusTiles[key] === 'DW' ? '#ccffcc' :
-                          bonusTiles[key] === 'DL' ? '#cce5ff' :
-                          bonusTiles[key] === '★'  ? '#ffeb99' : '#fff';
+          // Background
+          ctx.fillStyle =
+            bonusTiles[key] === 'TW' ? '#f5625d' :       // Triple Word
+              bonusTiles[key] === 'DW' ? '#ffba49' :       // Double Word
+                bonusTiles[key] === 'TL' ? '#3399ff' :       // Triple Letter
+                  bonusTiles[key] === 'DL' ? '#6fcf97' :       // Double Letter
+                    bonusTiles[key] === '★' ? '#ffdb74' :       // Center Star
+                      '#ffffff';
           ctx.fillRect(x, y, CELL_SIZE, CELL_SIZE);
 
           ctx.strokeStyle = '#999';
@@ -230,6 +270,7 @@
       return null;
     }
 
+    // === MOUSE INTERACTION ===
     canvas.addEventListener('mousemove', (e) => {
       const cell = getCellFromCoords(e.clientX, e.clientY);
       if (!cell || (hoverCell && cell.row === hoverCell.row && cell.col === hoverCell.col)) return;
@@ -250,25 +291,110 @@
       e.preventDefault();
       const cell = getCellFromCoords(e.clientX, e.clientY);
       if (!cell) return;
-
       const key = `${cell.row},${cell.col}`;
       if (tilesOnBoard[key]) return;
 
       try {
         const data = JSON.parse(e.dataTransfer.getData('text/plain'));
-        tilesOnBoard[key] = { letter: data.letter, id: data.id };
-        const tileEl = document.getElementById(data.id);
-        if (tileEl) tileEl.remove();
 
+        const tileEl = document.getElementById(data.id);
+        if (tileEl) {
+          // Replace with placeholder
+          const placeholder = document.createElement('div');
+          placeholder.className = 'tile empty-tile';
+          placeholder.style.visibility = 'hidden';
+          tileEl.replaceWith(placeholder);
+        }
+
+        tilesOnBoard[key] = { letter: data.letter, id: data.id };
         status.textContent = `Placed ${data.letter.toUpperCase()} at (${cell.row}, ${cell.col})`;
         drawBoard();
       } catch {
-        console.warn('Invalid tile drop.');
+        console.warn('Invalid drop data');
       }
     });
 
+    // === TOUCH SUPPORT ===
+    let draggingTouchTile = null;
+    let touchTileOffset = { x: 0, y: 0 };
+    let floatingTile = null;
+
+    function enableTouchDrag(tileEl) {
+      tileEl.addEventListener('touchstart', (e) => {
+        const touch = e.touches[0];
+        draggingTouchTile = {
+          letter: tileEl.dataset.letter,
+          id: tileEl.id,
+          originalEl: tileEl
+        };
+
+        const rect = tileEl.getBoundingClientRect();
+        touchTileOffset = {
+          x: touch.clientX - rect.left,
+          y: touch.clientY - rect.top
+        };
+
+        floatingTile = tileEl.cloneNode(true);
+        floatingTile.style.position = 'fixed';
+        floatingTile.style.pointerEvents = 'none';
+        floatingTile.style.zIndex = 9999;
+        floatingTile.style.transform = 'scale(1.5)';
+        document.body.appendChild(floatingTile);
+
+        moveFloatingTile(touch.clientX, touch.clientY);
+        e.preventDefault();
+      });
+
+      tileEl.addEventListener('touchmove', (e) => {
+        if (!floatingTile || !draggingTouchTile) return;
+        const touch = e.touches[0];
+        moveFloatingTile(touch.clientX, touch.clientY);
+        e.preventDefault();
+      });
+
+      tileEl.addEventListener('touchend', (e) => {
+        if (!floatingTile || !draggingTouchTile) return;
+
+        const touch = e.changedTouches[0];
+        const cell = getCellFromCoords(touch.clientX, touch.clientY);
+        if (cell) {
+          const key = `${cell.row},${cell.col}`;
+          if (!tilesOnBoard[key]) {
+            tilesOnBoard[key] = {
+              letter: draggingTouchTile.letter,
+              id: draggingTouchTile.id
+            };
+            // Replace original tile with a placeholder
+            const placeholder = document.createElement('div');
+            placeholder.className = 'tile empty-tile';
+            placeholder.style.visibility = 'hidden';
+            if (draggingTouchTile.originalEl.parentNode) {
+              draggingTouchTile.originalEl.replaceWith(placeholder);
+            }
+
+            status.textContent = `Placed ${draggingTouchTile.letter.toUpperCase()} at (${cell.row}, ${cell.col})`;
+            drawBoard();
+          }
+        }
+
+        floatingTile.remove();
+        floatingTile = null;
+        draggingTouchTile = null;
+        e.preventDefault();
+      });
+    }
+
+    function moveFloatingTile(x, y) {
+      if (!floatingTile) return;
+      floatingTile.style.left = (x - touchTileOffset.x) + 'px';
+      floatingTile.style.top = (y - touchTileOffset.y) + 'px';
+    }
+
+    // === INIT ===
     drawBoard();
     drawRack();
+
   </script>
 </body>
+
 </html>
