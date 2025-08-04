@@ -1,0 +1,39 @@
+Pair 1:
+  P1: hyolet | Score: 125
+  P2: sotaci | Score: 126
+
+Pair 2:
+  P1: bnawgs | Score: 83
+  P2: aicvts | Score: 86
+
+Pair 3:
+  P1: ailxof | Score: 73
+  P2: lirego | Score: 75
+
+Pair 4:
+  P1: eigtgo | Score: 58
+  P2: dasiov | Score: 62
+
+Pair 5:
+  P1: etyuly | Score: 44
+  P2: stwgdo | Score: 39
+
+Pair 6:
+  P1: cbeaya | Score: 42
+  P2: igeoho | Score: 37
+
+Pair 7:
+  P1: jgfloz | Score: 28
+  P2: arzreo | Score: 31
+
+Pair 8:
+  P1: enpelo | Score: 32
+  P2: reoees | Score: 28
+
+Pair 9:
+  P1: ovogve | Score: 16
+  P2: iufzei | Score: 20
+
+Pair 10:
+  P1: smivoz | Score: 21
+  P2: nfgxum | Score: 16
